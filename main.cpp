@@ -7,8 +7,12 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <filesystem>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "shader.h"
 #include "camera.h"
+#include "model.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
@@ -158,6 +162,10 @@ int main()
 
   unsigned int diffuseMap = loadTexture("Textures/container2.png");
   unsigned int specularMap = loadTexture("Textures/container2_specular.png");
+
+  stbi_set_flip_vertically_on_load(true);
+  Model ourModel("Objects/Backpack/backpack.obj");
+
   lightingShader.use();
   lightingShader.setInt("material.diffuse", 0);
   lightingShader.setInt("material.specular", 1);
@@ -257,6 +265,12 @@ int main()
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(20.0f, 0.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setMat4("model", model);
+    ourModel.Draw(lightingShader);
 
     lightCubeShader.use();
     lightCubeShader.setMat4("projection", projection);
