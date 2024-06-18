@@ -22,9 +22,7 @@
 class Renderer
 {
 public:
-  Shader *lightingShader;
-  Shader *lightObjShader;
-  Shader *solidColorShader;
+  std::map<std::string, Shader> Shaders;
   std::map<std::string, GameObject> GameObjects;
   std::map<std::string, PointLight> PointLights;
   std::map<std::string, SpotLight> SpotLights;
@@ -38,12 +36,7 @@ public:
   Renderer(GLFWframebuffersizefun framebuffer_size_callback, GLFWscrollfun scroll_callback, GLFWcursorposfun mouse_callback) : camera(glm::vec3(0.0f, 0.0f, 3.0f))
   {
 
-    if (!glfwInit())
-    {
-      std::cerr << "Failed to initialize GLFW" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-
+    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -70,7 +63,6 @@ public:
     glfwSetScrollCallback(window, scroll_callback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
     glfwSetCursorPosCallback(window, mouse_callback);
 
     glEnable(GL_DEPTH_TEST);
@@ -80,22 +72,15 @@ public:
 
     // wireframe thingy
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    lightingShader = new Shader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
-    lightObjShader = new Shader("Shaders/lightVertex.vs", "Shaders/lightFragment.fs");
-    solidColorShader = new Shader("Shaders/vColor.vs", "Shaders/fColor.fs");
   }
 
   ~Renderer()
   {
-    delete lightingShader;
-    delete lightObjShader;
-    delete solidColorShader;
   }
 
-  void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap)
+  void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, std::string shaderName)
   {
-    GameObjects.insert(std::make_pair(name, GameObject(type, diffuseMap, specularMap, *lightingShader)));
+    GameObjects.insert(std::make_pair(name, GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName))));
   }
 
   void setGameObjectPosition(std::string name, glm::vec3 position)
@@ -113,14 +98,19 @@ public:
     GameObjects.at(name).setPosition(scale);
   }
 
-  void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity)
+  void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName)
   {
-    PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, *lightingShader, PointLights.size())));
+    PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, Shaders.at(shaderName), PointLights.size())));
   }
 
-  void addSpotLight(std::string name, glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff)
+  void addShader(std::string name, Shader shader)
   {
-    SpotLights.insert(std::make_pair(name, SpotLight(position, direction, ambient, diffuse, specular, constant, linear, quadratic, cutOff, outerCutOff, *lightingShader, SpotLights.size())));
+    Shaders.insert(std::make_pair(name, shader));
+  }
+
+  void addSpotLight(std::string name, glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, std::string shaderName)
+  {
+    SpotLights.insert(std::make_pair(name, SpotLight(position, direction, ambient, diffuse, specular, constant, linear, quadratic, cutOff, outerCutOff, Shaders.at(shaderName), SpotLights.size())));
   }
 
   void setDirectionLightDirection(glm::vec3 newDirection)
@@ -140,50 +130,49 @@ public:
   {
     specular = newSpecular;
   }
-  void draw()
+  void draw(std::string lightingShaderName, std::string lightObjShaderName)
   {
 
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)ScreenW / (float)ScreenH, 0.1f, 100.0f);
     glm::mat4 view = camera.GetViewMatrix();
     glm::mat4 model = glm::mat4(1.0f);
-    lightObjShader->use();
-    lightObjShader->setMat4("view", view);
-    lightObjShader->setMat4("model", model);
-    lightObjShader->setMat4("projection", projection);
+    Shader shader = Shaders.at(lightObjShaderName);
+    Shader lightingShader = Shaders.at(lightingShaderName);
+    shader.use();
+    shader.setMat4("view", view);
+    shader.setMat4("model", model);
+    shader.setMat4("projection", projection);
 
     for (auto &light : PointLights)
     {
-
-      light.second.draw(*lightObjShader);
+      light.second.draw(shader);
     }
 
     for (auto &light : SpotLights)
     {
-
-      light.second.draw(*lightObjShader);
+      light.second.draw(shader);
     }
 
-    lightingShader->use();
+    lightingShader.use();
 
-    lightingShader->setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-    lightingShader->setMat4("view", view);
-    lightingShader->setMat4("model", model);
-    lightingShader->setMat4("projection", projection);
+    lightingShader.setMat4("view", view);
+    lightingShader.setMat4("projection", projection);
+    lightingShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 
-    lightingShader->setVec3("dirLight.direction", direction.x, direction.y, direction.z);
-    lightingShader->setVec3("dirLight.ambient", ambient.x, ambient.y, ambient.z);
-    lightingShader->setVec3("dirLight.diffuse", diffuse.x, diffuse.y, diffuse.z);
-    lightingShader->setVec3("dirLight.specular", specular.x, specular.y, specular.z);
+    lightingShader.setVec3("dirLight.direction", direction.x, direction.y, direction.z);
+    lightingShader.setVec3("dirLight.ambient", ambient.x, ambient.y, ambient.z);
+    lightingShader.setVec3("dirLight.diffuse", diffuse.x, diffuse.y, diffuse.z);
+    lightingShader.setVec3("dirLight.specular", specular.x, specular.y, specular.z);
 
-    lightingShader->setInt("pointLightsCount", PointLights.size());
+    lightingShader.setInt("pointLightsCount", PointLights.size());
 
-    lightingShader->setInt("spotLightsCount", SpotLights.size());
+    lightingShader.setInt("spotLightsCount", SpotLights.size());
 
-    lightingShader->setFloat("material.shininess", 32.0f);
+    lightingShader.setFloat("material.shininess", 32.0f);
 
     for (auto &object : GameObjects)
     {
-      object.second.draw(*lightingShader);
+      object.second.draw(lightingShader);
     }
   }
 

@@ -15,14 +15,13 @@
 #include "model.h"
 #include "pointLight.h"
 #include "spotLight.h"
-#include "gameObject.h"
 #include "renderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 unsigned int loadTexture(const char *path);
-void processInput();
+void processInput(GLFWwindow *window);
 
 int ScreenW = 1920;
 int ScreenH = 1080;
@@ -35,20 +34,37 @@ float lastFrame = 0.0f;
 
 bool firstMouse = true;
 
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 int main()
 {
-  const char *diffusePath = "Textures/container2.png";
-  const char *specularPath = "Textures/container2_specular.png";
-  renderer.addGameObject("cube1", 0, diffusePath, specularPath);
+  Shader lightingShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
+  Shader lightCubeShader("Shaders/lightVertex.vs", "Shaders/lightFragment.fs");
 
-  renderer.setDirectionLightDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
-  renderer.setDirectionLightAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-  renderer.setDirectionLightDiffuse(glm::vec3(0.4f, 0.4f, 0.4f));
-  renderer.setDirectionLightSpecular(glm::vec3(0.5f, 0.5f, 0.5f));
+  renderer.addShader("lightingShader", lightingShader);
+  renderer.addShader("lightObjShader", lightCubeShader);
 
-  renderer.addPointLight("light1", glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f);
+  GameObject gameobj(0, "Textures/container2.png", "Textures/container2_specular.png", lightingShader);
+  gameobj.setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
 
-  // renderer.addSpotLight("flashlight", renderer.camera.Position, renderer.camera.Front, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 12.5f, 17.5f);
+  unsigned int diffuseMap = loadTexture("Textures/container2.png");
+  unsigned int specularMap = loadTexture("Textures/container2_specular.png");
+
+  lightingShader.use();
+  lightingShader.setInt("material.diffuse", 0);
+  lightingShader.setInt("material.specular", 1);
+  renderer.addPointLight("pontLight1", glm::vec3(5.2f, 0.2f, 0.2f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 5.0f, "lightingShader");
+  renderer.addPointLight("pontLight2", glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f, "lightingShader");
+
+  renderer.addPointLight("pontLight3", glm::vec3(2.3f, -3.3f, -4.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f, "lightingShader");
+
+  renderer.addPointLight("pontLight4", glm::vec3(-4.0f, 2.0f, -12.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f, "lightingShader");
+
+  renderer.addPointLight("pontLight5", glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f, "lightingShader");
+
+  renderer.addPointLight("pontLight6", glm::vec3(-1.0f, 1.5f, 20.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3((cos(glfwGetTime()) + 1) / 2, (sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f, "lightingShader");
+
+  renderer.addSpotLight("spotLight1", renderer.camera.Position, renderer.camera.Front, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 12.5f, 17.5f, "lightingShader");
 
   while (!glfwWindowShouldClose(renderer.window))
   {
@@ -56,12 +72,27 @@ int main()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    processInput();
+    processInput(renderer.window);
 
     glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderer.draw();
+    lightingShader.use();
+
+    renderer.setDirectionLightDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
+    renderer.setDirectionLightAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+    renderer.setDirectionLightDiffuse(glm::vec3(0.4f, 0.4f, 0.4f));
+    renderer.setDirectionLightSpecular(glm::vec3(0.5f, 0.5f, 0.5f));
+
+    lightingShader.setInt("pointLightsCount", 5);
+
+    lightingShader.setInt("spotLightsCount", 1);
+
+    lightingShader.setFloat("material.shininess", 32.0f);
+
+    renderer.draw("lightingShader", "lightObjShader");
+
+    gameobj.draw(lightingShader);
 
     glfwSwapBuffers(renderer.window);
     glfwPollEvents();
@@ -71,35 +102,22 @@ int main()
   return 0;
 }
 
-void processInput()
+void processInput(GLFWwindow *window)
 {
 
-  if (glfwGetKey(renderer.window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-  {
-    glfwSetWindowShouldClose(renderer.window, true);
-  }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
 
   float cameraSpeed = 20.0f * deltaTime;
 
-  if (glfwGetKey(renderer.window, GLFW_KEY_W) == GLFW_PRESS)
-  {
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     renderer.camera.ProcessKeyboard(FORWARD, deltaTime);
-  }
-
-  if (glfwGetKey(renderer.window, GLFW_KEY_S) == GLFW_PRESS)
-  {
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     renderer.camera.ProcessKeyboard(BACKWARD, deltaTime);
-  }
-
-  if (glfwGetKey(renderer.window, GLFW_KEY_A) == GLFW_PRESS)
-  {
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     renderer.camera.ProcessKeyboard(LEFT, deltaTime);
-  }
-
-  if (glfwGetKey(renderer.window, GLFW_KEY_D) == GLFW_PRESS)
-  {
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     renderer.camera.ProcessKeyboard(RIGHT, deltaTime);
-  }
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)

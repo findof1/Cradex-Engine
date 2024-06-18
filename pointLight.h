@@ -16,7 +16,6 @@ public:
   int id;
   PointLight(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, Shader shader, int id) : position(position), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), intensity(intensity), id(id)
   {
-
     shader.use();
     shader.setVec3("pointLights[" + std::to_string(id) + "].position", position.x, position.y, position.z);
     shader.setVec3("pointLights[" + std::to_string(id) + "].ambient", ambient.x, ambient.y, ambient.z);
@@ -130,7 +129,6 @@ public:
 
   void draw(Shader lightShader)
   {
-
     lightShader.use();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
