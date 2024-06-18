@@ -13,7 +13,8 @@
 class GameObject
 {
 public:
-  GameObject(int type, const char *diffuse, const char *specular, Shader shader)
+  int type;
+  GameObject(int type, const char *diffuse, const char *specular, Shader shader) : type(type)
   {
     position = glm::vec3(0.0f, 0.0f, 0.0f);
     rotation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -22,6 +23,7 @@ public:
     {
       initCube();
     }
+
     diffuseMap = loadTexture(diffuse);
     specularMap = loadTexture(specular);
 
@@ -32,7 +34,7 @@ public:
 
   ~GameObject()
   {
-    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
   }
 
@@ -72,9 +74,19 @@ public:
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, specularMap);
 
-    glBindVertexArray(cubeVAO);
+    glBindVertexArray(VAO);
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    if (type == 0)
+    {
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+    else if (type == 1)
+    {
+      glDrawElements(GL_TRIANGLES,    // primitive type
+                     indicesCount,    // # of indices
+                     GL_UNSIGNED_INT, // data type
+                     (void *)0);
+    }
   }
 
 private:
@@ -84,7 +96,9 @@ private:
   unsigned int diffuseMap;
   unsigned int specularMap;
   unsigned int VBO;
-  unsigned int cubeVAO;
+  unsigned int VAO;
+  int vertexCount;
+  int indicesCount;
 
   unsigned int loadTexture(const char *path)
   {
@@ -168,13 +182,13 @@ private:
         -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
 
-    glGenVertexArrays(1, &cubeVAO);
+    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
-    glBindVertexArray(cubeVAO);
+    glBindVertexArray(VAO);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);

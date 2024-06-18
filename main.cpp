@@ -28,10 +28,17 @@ int main()
 {
   renderer.addModel("couch", "Objects/Couch/couch1.obj");
   renderer.addModel("backpack", "Objects/Backpack/backpack.obj");
+  renderer.addModel("sphere", "Objects/Sphere/sphere.obj");
 
   renderer.setModelPosition("backpack", glm::vec3(20.0f, 0.0f, 0.0f));
+
   renderer.setModelPosition("couch", glm::vec3(0.0f, 0.0f, 20.0f));
   renderer.setModelScale("couch", glm::vec3(0.1f, 0.1f, 0.1f));
+
+  renderer.setModelPosition("sphere", glm::vec3(-5.0f, 0.0f, 0.0f));
+
+  renderer.addGameObject("sphere1", 1, "Textures/container2.png", "Textures/container2_specular.png");
+  renderer.setGameObjectPosition("sphere1", glm::vec3(-5.0f, 0.0f, 0.0f));
 
   renderer.addGameObject("cube1", 0, "Textures/container2.png", "Textures/container2_specular.png");
   renderer.setGameObjectPosition("cube1", glm::vec3(0.0f, 0.0f, 0.0f));
@@ -94,9 +101,6 @@ int main()
     glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderer.setSpotLightPosition("spotLight1", renderer.camera.Position);
-    renderer.setSpotLightDirection("spotLight1", renderer.camera.Front);
-
     renderer.setPointLightDiffuse("pontLight6", glm::vec3((cos(glfwGetTime()) + 1) / 2, (sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2));
     renderer.draw();
 
@@ -124,4 +128,14 @@ void processInput(GLFWwindow *window)
     renderer.camera.ProcessKeyboard(LEFT, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     renderer.camera.ProcessKeyboard(RIGHT, deltaTime);
+
+  if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+  {
+    renderer.setSpotLightPosition("spotLight1", renderer.camera.Position);
+    renderer.setSpotLightDirection("spotLight1", renderer.camera.Front);
+  }
+  else
+  {
+    renderer.setSpotLightPosition("spotLight1", glm::vec3(10000000.0f, 1000000000.5f, 200000000000.0f));
+  }
 }
