@@ -31,11 +31,14 @@ public:
   int ScreenW = 1920;
   int ScreenH = 1080;
 
+  float lastX = ScreenW / 2, lastY = ScreenH / 2;
+  bool firstMouse = true;
+
   Camera camera;
 
-  Renderer(GLFWframebuffersizefun framebuffer_size_callback, GLFWscrollfun scroll_callback, GLFWcursorposfun mouse_callback) : camera(glm::vec3(0.0f, 0.0f, 3.0f))
+  Renderer() : camera(glm::vec3(0.0f, 0.0f, 3.0f))
   {
-
+    // GLFWframebuffersizefun framebuffer_size_callback, GLFWscrollfun scroll_callback, GLFWcursorposfun mouse_callback
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -53,6 +56,7 @@ public:
       exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
+    glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -72,10 +76,12 @@ public:
 
     // wireframe thingy
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  }
 
-  ~Renderer()
-  {
+    Shader lightingShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
+    Shader lightCubeShader("Shaders/lightVertex.vs", "Shaders/lightFragment.fs");
+
+    addShader("lightingShader", lightingShader);
+    addShader("lightObjShader", lightCubeShader);
   }
 
   void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, std::string shaderName)
@@ -182,6 +188,42 @@ private:
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
+
+  static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+  {
+    Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    glViewport(0, 0, width, height);
+    renderer->ScreenW = width;
+    renderer->ScreenH = height;
+  }
+
+  static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
+  {
+    Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (renderer->firstMouse)
+    {
+      renderer->lastX = xpos;
+      renderer->lastY = ypos;
+      renderer->firstMouse = false;
+    }
+
+    float xoffset = xpos - renderer->lastX;
+    float yoffset = renderer->lastY - ypos;
+
+    renderer->lastX = xpos;
+    renderer->lastY = ypos;
+
+    renderer->camera.ProcessMouseMovement(xoffset, yoffset);
+  }
+
+  static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+  {
+    Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    renderer->camera.ProcessMouseScroll(static_cast<float>(yoffset));
+  }
 };
 
 #endif
