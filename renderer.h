@@ -24,6 +24,7 @@ class Renderer
 public:
   std::map<std::string, Shader> Shaders;
   std::map<std::string, GameObject *> GameObjects;
+  std::map<std::string, Model *> Models;
   std::map<std::string, PointLight> PointLights;
   std::map<std::string, SpotLight> SpotLights;
   GLFWwindow *window;
@@ -82,9 +83,32 @@ public:
 
     addShader("lightingShader", lightingShader);
     addShader("lightObjShader", lightCubeShader);
+
+    direction = glm::vec3(0.0f);
+    ambient = glm::vec3(0.0f);
+    diffuse = glm::vec3(0.0f);
+    specular = glm::vec3(0.0f);
   }
 
-  void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, std::string shaderName)
+  void addModel(std::string name, const std::string &path)
+  {
+    Model *model = new Model(path);
+    Models.insert(std::make_pair(name, model));
+  }
+  void setModelPosition(std::string name, glm::vec3 position)
+  {
+    Models.at(name)->position = position;
+  }
+  void setModelRotation(std::string name, glm::vec3 rotation)
+  {
+    Models.at(name)->rotation = rotation;
+  }
+  void setModelScale(std::string name, glm::vec3 scale)
+  {
+    Models.at(name)->scale = scale;
+  }
+
+  void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, std::string shaderName = "lightingShader")
   {
     GameObject *obj = new GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName));
     GameObjects.insert(std::make_pair(name, obj));
@@ -105,9 +129,14 @@ public:
     GameObjects.at(name)->setPosition(scale);
   }
 
-  void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName)
+  void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName = "lightingShader")
   {
     PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, Shaders.at(shaderName), PointLights.size())));
+  }
+
+  void setPointLightDiffuse(std::string name, glm::vec3 diffuse, std::string shaderName = "lightingShader")
+  {
+    PointLights.at(name).setDiffuse(diffuse, Shaders.at(shaderName));
   }
 
   void addShader(std::string name, Shader shader)
@@ -115,9 +144,24 @@ public:
     Shaders.insert(std::make_pair(name, shader));
   }
 
-  void addSpotLight(std::string name, glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, std::string shaderName)
+  void addSpotLight(std::string name, glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, std::string shaderName = "lightingShader")
   {
     SpotLights.insert(std::make_pair(name, SpotLight(position, direction, ambient, diffuse, specular, constant, linear, quadratic, cutOff, outerCutOff, Shaders.at(shaderName), SpotLights.size())));
+  }
+
+  void setSpotLightPosition(std::string name, glm::vec3 position, std::string shaderName = "lightingShader")
+  {
+    SpotLights.at(name).setPosition(position, Shaders.at(shaderName));
+  }
+
+  void setSpotLightVisibility(std::string name, bool value)
+  {
+    SpotLights.at(name).setVisible(value);
+  }
+
+  void setSpotLightDirection(std::string name, glm::vec3 direction, std::string shaderName = "lightingShader")
+  {
+    SpotLights.at(name).setDirection(direction, Shaders.at(shaderName));
   }
 
   void setDirectionLightDirection(glm::vec3 newDirection)
@@ -137,7 +181,8 @@ public:
   {
     specular = newSpecular;
   }
-  void draw(std::string lightingShaderName, std::string lightObjShaderName)
+
+  void draw(std::string lightingShaderName = "lightingShader", std::string lightObjShaderName = "lightObjShader")
   {
 
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)ScreenW / (float)ScreenH, 0.1f, 100.0f);
@@ -180,6 +225,11 @@ public:
     for (auto &object : GameObjects)
     {
       object.second->draw(lightingShader);
+    }
+
+    for (auto &model : Models)
+    {
+      model.second->draw(lightingShader);
     }
   }
 

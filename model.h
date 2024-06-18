@@ -27,12 +27,31 @@ public:
   std::vector<Texture> textures_loaded;
   std::vector<Mesh> meshes;
   std::string directory;
+  glm::vec3 position;
+  glm::vec3 rotation;
+  glm::vec3 scale;
   Model(const std::string &path)
   {
+    position = glm::vec3(0.0f);
+    rotation = glm::vec3(0.0f);
+    scale = glm::vec3(1.0f);
+
+    stbi_set_flip_vertically_on_load(true);
     loadModel(path);
   }
-  void Draw(Shader &shader)
+  void draw(Shader &shader)
   {
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, position);
+
+    model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    model = glm::scale(model, scale);
+
+    shader.use();
+    shader.setMat4("model", model);
     for (unsigned int i = 0; i < meshes.size(); i++)
       meshes[i].Draw(shader);
   }

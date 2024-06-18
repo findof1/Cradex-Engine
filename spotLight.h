@@ -14,8 +14,10 @@ class SpotLight
 {
 public:
   int id;
-  SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, Shader shader, int id) : position(position), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), cutOff(cutOff), outerCutOff(outerCutOff), id(id)
+  SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, Shader shader, int id) : position(position), direction(direction), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), cutOff(cutOff), outerCutOff(outerCutOff), id(id)
   {
+    show = true;
+
     shader.use();
     shader.setVec3("spotLights[" + std::to_string(id) + "].position", position.x, position.y, position.z);
     shader.setVec3("spotLights[" + std::to_string(id) + "].direction", direction.x, direction.y, direction.z);
@@ -90,6 +92,13 @@ public:
     shader.setVec3("spotLights[" + std::to_string(id) + "].position", position.x, position.y, position.z);
   }
 
+  void setDirection(glm::vec3 newDirection, Shader shader)
+  {
+    shader.use();
+    direction = newDirection;
+    shader.setVec3("spotLights[" + std::to_string(id) + "].direction", direction.x, direction.y, direction.z);
+  }
+
   void setAmbient(glm::vec3 newAmbient, Shader shader)
   {
     shader.use();
@@ -102,6 +111,11 @@ public:
     shader.use();
     diffuse = newDiffuse;
     shader.setVec3("spotLights[" + std::to_string(id) + "].diffuse", diffuse.x, diffuse.y, diffuse.z);
+  }
+
+  void setVisible(bool value)
+  {
+    show = value;
   }
 
   void setSpecular(glm::vec3 newSpecular, Shader shader)
@@ -133,19 +147,23 @@ public:
 
   void draw(Shader lightShader)
   {
-    lightShader.use();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
-    model = glm::scale(model, glm::vec3(0.2f));
-    lightShader.setMat4("model", model);
-    lightShader.setVec3("color", diffuse.x, diffuse.y, diffuse.z);
-    glBindVertexArray(lightCubeVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
+    if (show)
+    {
+      lightShader.use();
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, position);
+      model = glm::scale(model, glm::vec3(0.2f));
+      lightShader.setMat4("model", model);
+      lightShader.setVec3("color", diffuse.x, diffuse.y, diffuse.z);
+      glBindVertexArray(lightCubeVAO);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+      glBindVertexArray(0);
+    }
   }
 
 private:
   glm::vec3 position;
+  glm::vec3 direction;
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
@@ -154,6 +172,7 @@ private:
   float quadratic;
   float cutOff;
   float outerCutOff;
+  bool show;
   unsigned int lightCubeVAO;
   unsigned int VBO;
 };
