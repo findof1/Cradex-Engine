@@ -23,7 +23,7 @@ class Renderer
 {
 public:
   std::map<std::string, Shader> Shaders;
-  std::map<std::string, GameObject> GameObjects;
+  std::map<std::string, GameObject *> GameObjects;
   std::map<std::string, PointLight> PointLights;
   std::map<std::string, SpotLight> SpotLights;
   GLFWwindow *window;
@@ -80,22 +80,23 @@ public:
 
   void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, std::string shaderName)
   {
-    GameObjects.insert(std::make_pair(name, GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName))));
+    GameObject *obj = new GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName));
+    GameObjects.insert(std::make_pair(name, obj));
   }
 
   void setGameObjectPosition(std::string name, glm::vec3 position)
   {
-    GameObjects.at(name).setPosition(position);
+    GameObjects.at(name)->setPosition(position);
   }
 
   void setGameObjectRotation(std::string name, glm::vec3 rotation)
   {
-    GameObjects.at(name).setPosition(rotation);
+    GameObjects.at(name)->setPosition(rotation);
   }
 
   void setGameObjectScale(std::string name, glm::vec3 scale)
   {
-    GameObjects.at(name).setPosition(scale);
+    GameObjects.at(name)->setPosition(scale);
   }
 
   void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName)
@@ -172,7 +173,7 @@ public:
 
     for (auto &object : GameObjects)
     {
-      object.second.draw(lightingShader);
+      object.second->draw(lightingShader);
     }
   }
 

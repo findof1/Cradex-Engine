@@ -44,15 +44,8 @@ int main()
   renderer.addShader("lightingShader", lightingShader);
   renderer.addShader("lightObjShader", lightCubeShader);
 
-  GameObject gameobj(0, "Textures/container2.png", "Textures/container2_specular.png", lightingShader);
-  gameobj.setPosition(glm::vec3(1.0f, 0.0f, 0.0f));
+  renderer.addGameObject("cube1", 0, "Textures/container2.png", "Textures/container2_specular.png", "lightingShader");
 
-  unsigned int diffuseMap = loadTexture("Textures/container2.png");
-  unsigned int specularMap = loadTexture("Textures/container2_specular.png");
-
-  lightingShader.use();
-  lightingShader.setInt("material.diffuse", 0);
-  lightingShader.setInt("material.specular", 1);
   renderer.addPointLight("pontLight1", glm::vec3(5.2f, 0.2f, 0.2f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 5.0f, "lightingShader");
   renderer.addPointLight("pontLight2", glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f, "lightingShader");
 
@@ -66,6 +59,11 @@ int main()
 
   renderer.addSpotLight("spotLight1", renderer.camera.Position, renderer.camera.Front, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 12.5f, 17.5f, "lightingShader");
 
+  renderer.setDirectionLightDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
+  renderer.setDirectionLightAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+  renderer.setDirectionLightDiffuse(glm::vec3(0.4f, 0.4f, 0.4f));
+  renderer.setDirectionLightSpecular(glm::vec3(0.5f, 0.5f, 0.5f));
+
   while (!glfwWindowShouldClose(renderer.window))
   {
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -77,22 +75,7 @@ int main()
     glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    lightingShader.use();
-
-    renderer.setDirectionLightDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
-    renderer.setDirectionLightAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-    renderer.setDirectionLightDiffuse(glm::vec3(0.4f, 0.4f, 0.4f));
-    renderer.setDirectionLightSpecular(glm::vec3(0.5f, 0.5f, 0.5f));
-
-    lightingShader.setInt("pointLightsCount", 5);
-
-    lightingShader.setInt("spotLightsCount", 1);
-
-    lightingShader.setFloat("material.shininess", 32.0f);
-
     renderer.draw("lightingShader", "lightObjShader");
-
-    gameobj.draw(lightingShader);
 
     glfwSwapBuffers(renderer.window);
     glfwPollEvents();
