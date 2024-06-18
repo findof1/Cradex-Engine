@@ -74,7 +74,7 @@ void main() {
     }
   }
   FragColor = vec4(result, 1.0);
-  FragColor = texture(material.diffuse, TexCoords);
+  //FragColor = texture(material.diffuse, TexCoords);
   //set all to white if I use wireframe mode
   // FragColor = vec4(1.0);
 }
