@@ -63,18 +63,20 @@ void main() {
 
   vec3 result = CalcDirLight(dirLight, norm, viewDir);
 
-  for(int i = 0; i < pointLightsCount; i++) {
-    result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+  if(pointLightsCount > 0) {
+    for(int i = 0; i < pointLightsCount; i++) {
+      result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+    }
   }
-
-  for(int i = 0; i < spotLightsCount; i++) {
-    result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
+  if(spotLightsCount > 0) {
+    for(int i = 0; i < spotLightsCount; i++) {
+      result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
+    }
   }
-
   FragColor = vec4(result, 1.0);
-
+  FragColor = texture(material.diffuse, TexCoords);
   //set all to white if I use wireframe mode
-  //FragColor = vec4(1.0);
+  // FragColor = vec4(1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
