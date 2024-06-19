@@ -124,6 +124,11 @@ public:
     PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, Shaders.at(shaderName), PointLights.size())));
   }
 
+  void setPointLightPosition(std::string name, glm::vec3 position, std::string shaderName = "lightingShader")
+  {
+    PointLights.at(name).setPosition(position, Shaders.at(shaderName));
+  }
+
   void setPointLightDiffuse(std::string name, glm::vec3 diffuse, std::string shaderName = "lightingShader")
   {
     PointLights.at(name).setDiffuse(diffuse, Shaders.at(shaderName));

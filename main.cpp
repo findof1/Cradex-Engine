@@ -29,6 +29,10 @@ void displayEditor();
 void displayPropertiesEditor();
 void displayHierarchy();
 
+void displayEditingGameObject();
+void displayEditingModel();
+void displayEditingPointLight();
+
 static int numbersOnlyTextCallback(ImGuiInputTextCallbackData *data);
 
 Renderer renderer;
@@ -293,151 +297,428 @@ void displayPropertiesEditor()
 {
   ImGui::SetNextWindowPos(ImVec2(0, renderer.ScreenH / 2), ImGuiCond_Always);
   ImGui::SetNextWindowSize(ImVec2(renderer.ScreenW - (renderer.ScreenW / 2 * 1.5), renderer.ScreenH / 2), ImGuiCond_Always);
-  ImGui::Begin("Edit Object", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-  if (editing != "" && renderer.GameObjects.find(editing) != renderer.GameObjects.end())
+  ImGui::Begin("Object Properties", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  if (editing == "")
   {
-    ImGui::Columns(1);
-    ImGui::Text(editing);
-    ImGui::Text("Position");
-
-    ImGui::Text("X:");
-    ImGui::SameLine();
-    ImGui::PushID("XPos");
-    ImGui::SetNextItemWidth(30);
-    std::string valueStr = std::to_string(renderer.GameObjects.at(editing)->position.x);
-    static char buf[32];
-    strcpy(buf, valueStr.c_str());
-
-    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->position.x = atof(buf);
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
-
-    ImGui::Text("Y:");
-    ImGui::SameLine();
-    ImGui::PushID("YPos");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->position.y);
-    static char buf2[32];
-    strcpy(buf2, valueStr.c_str());
-
-    if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->position.y = atof(buf2);
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
-
-    ImGui::Text("Z:");
-    ImGui::SameLine();
-    ImGui::PushID("ZPos");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->position.z);
-    static char buf3[32];
-    strcpy(buf3, valueStr.c_str());
-
-    if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->position.z = atof(buf3);
-    }
-    ImGui::PopID();
-
-    ImGui::Text("Scale");
-
-    ImGui::Text("X:");
-    ImGui::SameLine();
-    ImGui::PushID("XScale");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.x);
-    static char buf4[32];
-    strcpy(buf4, valueStr.c_str());
-
-    if (ImGui::InputText("##X", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->scale.x = atof(buf4);
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
-
-    ImGui::Text("Y:");
-    ImGui::SameLine();
-    ImGui::PushID("YScale");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.y);
-    static char buf5[32];
-    strcpy(buf5, valueStr.c_str());
-
-    if (ImGui::InputText("##Y", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->scale.y = atof(buf5);
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
-
-    ImGui::Text("Z:");
-    ImGui::SameLine();
-    ImGui::PushID("ZScale");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.z);
-    static char buf6[32];
-    strcpy(buf6, valueStr.c_str());
-
-    if (ImGui::InputText("##Z", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->scale.z = atof(buf6);
-    }
-    ImGui::PopID();
-
-    ImGui::Text("Rotation");
-
-    ImGui::Text("X:");
-    ImGui::SameLine();
-    ImGui::PushID("XRotation");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.x);
-    static char buf7[32];
-    strcpy(buf7, valueStr.c_str());
-
-    if (ImGui::InputText("##X", buf7, sizeof(buf7), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->rotation.x = atof(buf7);
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
-
-    ImGui::Text("Y:");
-    ImGui::SameLine();
-    ImGui::PushID("YRotation");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.y);
-    static char buf8[32];
-    strcpy(buf8, valueStr.c_str());
-
-    if (ImGui::InputText("##Y", buf8, sizeof(buf8), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->rotation.y = atof(buf8);
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
-
-    ImGui::Text("Z:");
-    ImGui::SameLine();
-    ImGui::PushID("ZRotation");
-    ImGui::SetNextItemWidth(30);
-    valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.z);
-    static char buf9[32];
-    strcpy(buf3, valueStr.c_str());
-
-    if (ImGui::InputText("##Z", buf9, sizeof(buf9), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
-    {
-      renderer.GameObjects.at(editing)->rotation.z = atof(buf9);
-    }
-    ImGui::PopID();
-    ImGui::Columns(1);
+    ImGui::End();
+    return;
   }
+
+  if (renderer.GameObjects.find(editing) != renderer.GameObjects.end())
+  {
+    displayEditingGameObject();
+    ImGui::End();
+    return;
+  }
+
+  if (renderer.Models.find(editing) != renderer.Models.end())
+  {
+    displayEditingModel();
+    ImGui::End();
+    return;
+  }
+
+  if (renderer.PointLights.find(editing) != renderer.PointLights.end())
+  {
+    displayEditingPointLight();
+    ImGui::End();
+    return;
+  }
+
   ImGui::End();
+}
+
+void displayEditingGameObject()
+{
+  ImGui::Columns(1);
+  ImGui::Text(editing);
+  ImGui::Text("Position");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XPos");
+  ImGui::SetNextItemWidth(30);
+  std::string valueStr = std::to_string(renderer.GameObjects.at(editing)->position.x);
+  static char buf[32];
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->position.x = atof(buf);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YPos");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->position.y);
+  static char buf2[32];
+  strcpy(buf2, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->position.y = atof(buf2);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZPos");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->position.z);
+  static char buf3[32];
+  strcpy(buf3, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->position.z = atof(buf3);
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Scale");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XScale");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.x);
+  static char buf4[32];
+  strcpy(buf4, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->scale.x = atof(buf4);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YScale");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.y);
+  static char buf5[32];
+  strcpy(buf5, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->scale.y = atof(buf5);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZScale");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.z);
+  static char buf6[32];
+  strcpy(buf6, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->scale.z = atof(buf6);
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Rotation");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XRotation");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.x);
+  static char buf7[32];
+  strcpy(buf7, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf7, sizeof(buf7), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->rotation.x = atof(buf7);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YRotation");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.y);
+  static char buf8[32];
+  strcpy(buf8, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf8, sizeof(buf8), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->rotation.y = atof(buf8);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZRotation");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.z);
+  static char buf9[32];
+  strcpy(buf3, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf9, sizeof(buf9), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.GameObjects.at(editing)->rotation.z = atof(buf9);
+  }
+  ImGui::PopID();
+  ImGui::Columns(1);
+}
+
+void displayEditingPointLight()
+{
+  ImGui::Columns(1);
+  ImGui::Text(editing);
+  ImGui::Text("Position");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XPos");
+  ImGui::SetNextItemWidth(30);
+
+  std::string valueStr = std::to_string(renderer.PointLights.at(editing).position.x);
+
+  static char buf[32];
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+
+    renderer.setPointLightPosition(editing, glm::vec3(atof(buf), renderer.PointLights.at(editing).position.y, renderer.PointLights.at(editing).position.z));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YPos");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.PointLights.at(editing).position.y);
+  static char buf2[32];
+  strcpy(buf2, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.setPointLightPosition(editing, glm::vec3(renderer.PointLights.at(editing).position.x, atof(buf2), renderer.PointLights.at(editing).position.z));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZPos");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.PointLights.at(editing).position.z);
+  static char buf3[32];
+  strcpy(buf3, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.setPointLightPosition(editing, glm::vec3(renderer.PointLights.at(editing).position.x, renderer.PointLights.at(editing).position.y, atof(buf3)));
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Diffuse");
+
+  ImGui::Text("R:");
+  ImGui::SameLine();
+  ImGui::PushID("RDiffuse");
+  ImGui::SetNextItemWidth(30);
+
+  valueStr = std::to_string(renderer.PointLights.at(editing).diffuse.x * 255);
+
+  static char buf4[32];
+  strcpy(buf4, valueStr.c_str());
+
+  if (ImGui::InputText("##R", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+
+    renderer.setPointLightDiffuse(editing, glm::vec3(atof(buf4) / 255, renderer.PointLights.at(editing).diffuse.y, renderer.PointLights.at(editing).diffuse.z));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("G:");
+  ImGui::SameLine();
+  ImGui::PushID("GDiffuse");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.PointLights.at(editing).diffuse.y * 255);
+  static char buf5[32];
+  strcpy(buf5, valueStr.c_str());
+
+  if (ImGui::InputText("##G", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.setPointLightDiffuse(editing, glm::vec3(renderer.PointLights.at(editing).diffuse.x, atof(buf5) / 255, renderer.PointLights.at(editing).diffuse.z));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("B:");
+  ImGui::SameLine();
+  ImGui::PushID("BDiffuse");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.PointLights.at(editing).diffuse.z * 255);
+  static char buf6[32];
+  strcpy(buf6, valueStr.c_str());
+
+  if (ImGui::InputText("##B", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.setPointLightDiffuse(editing, glm::vec3(renderer.PointLights.at(editing).diffuse.x, renderer.PointLights.at(editing).diffuse.y, atof(buf6) / 255));
+  }
+  ImGui::PopID();
+
+  ImGui::Columns(1);
+}
+
+void displayEditingModel()
+{
+  ImGui::Columns(1);
+  ImGui::Text(editing);
+  ImGui::Text("Position");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XPos");
+  ImGui::SetNextItemWidth(30);
+  std::string valueStr = std::to_string(renderer.Models.at(editing)->position.x);
+  static char buf[32];
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->position.x = atof(buf);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YPos");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->position.y);
+  static char buf2[32];
+  strcpy(buf2, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->position.y = atof(buf2);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZPos");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->position.z);
+  static char buf3[32];
+  strcpy(buf3, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->position.z = atof(buf3);
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Scale");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XScale");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->scale.x);
+  static char buf4[32];
+  strcpy(buf4, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->scale.x = atof(buf4);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YScale");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->scale.y);
+  static char buf5[32];
+  strcpy(buf5, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->scale.y = atof(buf5);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZScale");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->scale.z);
+  static char buf6[32];
+  strcpy(buf6, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->scale.z = atof(buf6);
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Rotation");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XRotation");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->rotation.x);
+  static char buf7[32];
+  strcpy(buf7, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf7, sizeof(buf7), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->rotation.x = atof(buf7);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YRotation");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->rotation.y);
+  static char buf8[32];
+  strcpy(buf8, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf8, sizeof(buf8), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->rotation.y = atof(buf8);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZRotation");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer.Models.at(editing)->rotation.z);
+  static char buf9[32];
+  strcpy(buf3, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf9, sizeof(buf9), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer.Models.at(editing)->rotation.z = atof(buf9);
+  }
+  ImGui::PopID();
+  ImGui::Columns(1);
 }
 
 void displayEditor()
