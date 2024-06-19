@@ -31,6 +31,8 @@ The 3D Renderer is an application that allows users to explore a rendered 3D env
   - Move the mouse to look around
 - **Exit:**
   - Press `Escape` or `Alt + F4` to exit the application
+- **Extra**
+  - `F`: Toggle Flashlight
 
 ## Troubleshooting
 - **Application not starting:**
