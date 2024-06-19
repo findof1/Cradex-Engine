@@ -119,21 +119,6 @@ public:
     GameObjects.insert(std::make_pair(name, obj));
   }
 
-  void setGameObjectPosition(std::string name, glm::vec3 position)
-  {
-    GameObjects.at(name)->setPosition(position);
-  }
-
-  void setGameObjectRotation(std::string name, glm::vec3 rotation)
-  {
-    GameObjects.at(name)->setPosition(rotation);
-  }
-
-  void setGameObjectScale(std::string name, glm::vec3 scale)
-  {
-    GameObjects.at(name)->setPosition(scale);
-  }
-
   void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName = "lightingShader")
   {
     PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, Shaders.at(shaderName), PointLights.size())));

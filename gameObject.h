@@ -14,6 +14,9 @@ class GameObject
 {
 public:
   int type;
+  glm::vec3 position;
+  glm::vec3 rotation;
+  glm::vec3 scale;
   GameObject(int type, const char *diffuse, const char *specular, Shader shader) : type(type)
   {
     position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -38,19 +41,14 @@ public:
     glDeleteBuffers(1, &VBO);
   }
 
-  void setPosition(glm::vec3 newPosition)
+  void setDiffuse(const char *diffusePath)
   {
-    position = newPosition;
+    diffuseMap = loadTexture(diffusePath);
   }
 
-  void setRotation(glm::vec3 newRotation)
+  void setSpecular(const char *specularPath)
   {
-    rotation = newRotation;
-  }
-
-  void setScale(glm::vec3 newScale)
-  {
-    scale = newScale;
+    specularMap = loadTexture(specularPath);
   }
 
   void draw(Shader shader)
@@ -90,9 +88,6 @@ public:
   }
 
 private:
-  glm::vec3 position;
-  glm::vec3 rotation;
-  glm::vec3 scale;
   unsigned int diffuseMap;
   unsigned int specularMap;
   unsigned int VBO;

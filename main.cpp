@@ -25,10 +25,23 @@ GLuint CreateFramebuffer(GLuint texture, int width, int height);
 GLuint CreateOpenGLTexture(int width, int height);
 void RenderToTexture(GLuint fbo, int width, int height);
 
+void displayEditor();
+void displayPropertiesEditor();
+void displayHierarchy();
+
+static int numbersOnlyTextCallback(ImGuiInputTextCallbackData *data);
+
 Renderer renderer;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+const char *editing = "";
+
+int textureWidth = renderer.ScreenW / 2;
+int textureHeight = renderer.ScreenH / 2;
+GLuint texture = CreateOpenGLTexture(textureWidth, textureHeight);
+GLuint fbo = CreateFramebuffer(texture, textureWidth, textureHeight);
+float aspectRatio = static_cast<float>(textureWidth) / static_cast<float>(textureHeight);
 
 int main()
 {
@@ -55,34 +68,34 @@ int main()
   renderer.setModelPosition("sphere", glm::vec3(-5.0f, 0.0f, 0.0f));
 
   renderer.addGameObject("cube1", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube1", glm::vec3(0.0f, 0.0f, 0.0f));
+  renderer.GameObjects.at("cube1")->position = glm::vec3(0.0f, 0.0f, 0.0f);
 
   renderer.addGameObject("cube2", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube2", glm::vec3(2.0f, 5.0f, -15.0f));
+  renderer.GameObjects.at("cube2")->position = glm::vec3(2.0f, 5.0f, -15.0f);
 
   renderer.addGameObject("cube3", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube3", glm::vec3(-1.5f, -2.2f, -2.5f));
+  renderer.GameObjects.at("cube3")->position = glm::vec3(-1.5f, -2.2f, -2.5f);
 
   renderer.addGameObject("cube4", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube4", glm::vec3(-3.8f, -2.0f, -12.3f));
+  renderer.GameObjects.at("cube4")->position = glm::vec3(-3.8f, -2.0f, -12.3f);
 
   renderer.addGameObject("cube5", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube5", glm::vec3(2.4f, -0.4f, -3.5f));
+  renderer.GameObjects.at("cube5")->position = glm::vec3(2.4f, -0.4f, -3.5f);
 
   renderer.addGameObject("cube6", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube6", glm::vec3(-1.7f, 3.0f, -7.5f));
+  renderer.GameObjects.at("cube6")->position = glm::vec3(-1.7f, 3.0f, -7.5f);
 
   renderer.addGameObject("cube7", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube7", glm::vec3(1.3f, -2.0f, -2.5f));
+  renderer.GameObjects.at("cube7")->position = glm::vec3(1.3f, -2.0f, -2.5f);
 
   renderer.addGameObject("cube8", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube8", glm::vec3(1.5f, 2.0f, -2.5f));
+  renderer.GameObjects.at("cube8")->position = glm::vec3(1.5f, 2.0f, -2.5f);
 
   renderer.addGameObject("cube9", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube9", glm::vec3(1.5f, 0.2f, -1.5f));
+  renderer.GameObjects.at("cube9")->position = glm::vec3(1.5f, 0.2f, -1.5f);
 
   renderer.addGameObject("cube10", 0, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("cube10", glm::vec3(-1.3f, 1.0f, -1.5f));
+  renderer.GameObjects.at("cube10")->position = glm::vec3(-1.3f, 1.0f, -1.5f);
 
   renderer.addPointLight("pontLight1", glm::vec3(5.2f, 0.2f, 0.2f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 5.0f);
   renderer.addPointLight("pontLight2", glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 1.0f);
@@ -104,13 +117,9 @@ int main()
   renderer.setDirectionLightDiffuse(glm::vec3(0.4f, 0.4f, 0.4f));
   renderer.setDirectionLightSpecular(glm::vec3(0.5f, 0.5f, 0.5f));
 
-  int textureWidth = 960;
-  int textureHeight = 540;
-  GLuint texture = CreateOpenGLTexture(textureWidth, textureHeight);
-  GLuint fbo = CreateFramebuffer(texture, textureWidth, textureHeight);
-  float aspectRatio = static_cast<float>(textureWidth) / static_cast<float>(textureHeight);
   while (!glfwWindowShouldClose(renderer.window))
   {
+
     float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -126,26 +135,9 @@ int main()
 
     renderer.setPointLightDiffuse("pontLight6", glm::vec3((cos(glfwGetTime()) + 1) / 2, (sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2));
 
-    ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(textureWidth, textureHeight), ImGuiCond_FirstUseEver);
-
-    ImGui::Begin("OpenGL Render", NULL, ImGuiWindowFlags_NoCollapse);
-
-    ImVec2 availSize = ImGui::GetContentRegionAvail();
-
-    float imageWidth = availSize.x;
-    float imageHeight = imageWidth / aspectRatio;
-
-    if (imageHeight > availSize.y)
-    {
-      imageHeight = availSize.y;
-      imageWidth = imageHeight * aspectRatio;
-    }
-
-    RenderToTexture(fbo, textureWidth, textureHeight);
-
-    ImGui::Image(reinterpret_cast<ImTextureID>(texture), ImVec2(imageWidth, imageHeight), ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::End();
+    displayEditor();
+    displayHierarchy();
+    displayPropertiesEditor();
 
     ImGui::Render();
 
@@ -236,4 +228,238 @@ void RenderToTexture(GLuint fbo, int width, int height)
   renderer.draw();
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+static int numbersOnlyTextCallback(ImGuiInputTextCallbackData *data)
+{
+
+  if (data->EventChar < '0' || data->EventChar > '9')
+  {
+    if (data->EventChar != '-' && data->EventChar != '.' && data->EventChar != '\b' && data->EventChar != '\t' && data->EventChar != '\r' && data->EventChar != '\n')
+      return 1;
+  }
+
+  return 0;
+}
+
+void displayHierarchy()
+{
+  ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+  ImGui::SetNextWindowSize(ImVec2(renderer.ScreenW - (renderer.ScreenW / 2 * 1.5), renderer.ScreenH / 2), ImGuiCond_Always);
+  ImGui::Begin("Hierarchy", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  ImGui::Columns(1);
+  ImGui::Text("Game Objects");
+  for (auto &object : renderer.GameObjects)
+  {
+    if (ImGui::Button(object.first.c_str()))
+    {
+      editing = object.first.c_str();
+    }
+  }
+  ImGui::Text("Point Lights");
+  for (auto &object : renderer.PointLights)
+  {
+    if (ImGui::Button(object.first.c_str()))
+    {
+      editing = object.first.c_str();
+    }
+  }
+  ImGui::Text("Spot Lights");
+  for (auto &object : renderer.SpotLights)
+  {
+    if (ImGui::Button(object.first.c_str()))
+    {
+      editing = object.first.c_str();
+    }
+  }
+  ImGui::Text("Directional Light");
+  if (ImGui::Button("Directional Light"))
+  {
+    editing = "Directional Light";
+  }
+  ImGui::Text("Models");
+  for (auto &object : renderer.Models)
+  {
+    if (ImGui::Button(object.first.c_str()))
+    {
+      editing = object.first.c_str();
+    }
+  }
+  ImGui::Columns(1);
+  ImGui::End();
+}
+
+void displayPropertiesEditor()
+{
+  ImGui::SetNextWindowPos(ImVec2(0, renderer.ScreenH / 2), ImGuiCond_Always);
+  ImGui::SetNextWindowSize(ImVec2(renderer.ScreenW - (renderer.ScreenW / 2 * 1.5), renderer.ScreenH / 2), ImGuiCond_Always);
+  ImGui::Begin("Edit Object", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  if (editing != "" && renderer.GameObjects.find(editing) != renderer.GameObjects.end())
+  {
+    ImGui::Columns(1);
+    ImGui::Text(editing);
+    ImGui::Text("Position");
+
+    ImGui::Text("X:");
+    ImGui::SameLine();
+    ImGui::PushID("XPos");
+    ImGui::SetNextItemWidth(30);
+    std::string valueStr = std::to_string(renderer.GameObjects.at(editing)->position.x);
+    static char buf[32];
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->position.x = atof(buf);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Y:");
+    ImGui::SameLine();
+    ImGui::PushID("YPos");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->position.y);
+    static char buf2[32];
+    strcpy(buf2, valueStr.c_str());
+
+    if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->position.y = atof(buf2);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Z:");
+    ImGui::SameLine();
+    ImGui::PushID("ZPos");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->position.z);
+    static char buf3[32];
+    strcpy(buf3, valueStr.c_str());
+
+    if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->position.z = atof(buf3);
+    }
+    ImGui::PopID();
+
+    ImGui::Text("Scale");
+
+    ImGui::Text("X:");
+    ImGui::SameLine();
+    ImGui::PushID("XScale");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.x);
+    static char buf4[32];
+    strcpy(buf4, valueStr.c_str());
+
+    if (ImGui::InputText("##X", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->scale.x = atof(buf4);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Y:");
+    ImGui::SameLine();
+    ImGui::PushID("YScale");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.y);
+    static char buf5[32];
+    strcpy(buf5, valueStr.c_str());
+
+    if (ImGui::InputText("##Y", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->scale.y = atof(buf5);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Z:");
+    ImGui::SameLine();
+    ImGui::PushID("ZScale");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->scale.z);
+    static char buf6[32];
+    strcpy(buf6, valueStr.c_str());
+
+    if (ImGui::InputText("##Z", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->scale.z = atof(buf6);
+    }
+    ImGui::PopID();
+
+    ImGui::Text("Rotation");
+
+    ImGui::Text("X:");
+    ImGui::SameLine();
+    ImGui::PushID("XRotation");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.x);
+    static char buf7[32];
+    strcpy(buf7, valueStr.c_str());
+
+    if (ImGui::InputText("##X", buf7, sizeof(buf7), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->rotation.x = atof(buf7);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Y:");
+    ImGui::SameLine();
+    ImGui::PushID("YRotation");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.y);
+    static char buf8[32];
+    strcpy(buf8, valueStr.c_str());
+
+    if (ImGui::InputText("##Y", buf8, sizeof(buf8), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->rotation.y = atof(buf8);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Z:");
+    ImGui::SameLine();
+    ImGui::PushID("ZRotation");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer.GameObjects.at(editing)->rotation.z);
+    static char buf9[32];
+    strcpy(buf3, valueStr.c_str());
+
+    if (ImGui::InputText("##Z", buf9, sizeof(buf9), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer.GameObjects.at(editing)->rotation.z = atof(buf9);
+    }
+    ImGui::PopID();
+    ImGui::Columns(1);
+  }
+  ImGui::End();
+}
+
+void displayEditor()
+{
+  ImGui::SetNextWindowPos(ImVec2(renderer.ScreenW - (renderer.ScreenW / 2 * 1.5), 0), ImGuiCond_Always);
+  ImGui::SetNextWindowSize(ImVec2(renderer.ScreenW / 2 * 1.5, renderer.ScreenH / 2 * 1.5), ImGuiCond_Always);
+
+  ImGui::Begin("Editor", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+  ImVec2 availSize = ImGui::GetContentRegionAvail();
+
+  float imageWidth = availSize.x;
+  float imageHeight = imageWidth / aspectRatio;
+
+  if (imageHeight > availSize.y)
+  {
+    imageHeight = availSize.y;
+    imageWidth = imageHeight * aspectRatio;
+  }
+
+  RenderToTexture(fbo, textureWidth, textureHeight);
+
+  ImGui::Image(reinterpret_cast<ImTextureID>(texture), ImVec2(imageWidth, imageHeight), ImVec2(0, 1), ImVec2(1, 0));
+  ImGui::End();
 }
