@@ -21,6 +21,9 @@
 #include "imgui_impl_opengl3.h"
 
 void processInput(GLFWwindow *window);
+GLuint CreateFramebuffer(GLuint texture, int width, int height);
+GLuint CreateOpenGLTexture(int width, int height);
+void RenderToTexture(GLuint fbo, int width, int height);
 
 Renderer renderer;
 
@@ -50,9 +53,6 @@ int main()
   renderer.setModelScale("couch", glm::vec3(0.1f, 0.1f, 0.1f));
 
   renderer.setModelPosition("sphere", glm::vec3(-5.0f, 0.0f, 0.0f));
-
-  renderer.addGameObject("sphere1", 1, "Textures/container2.png", "Textures/container2_specular.png");
-  renderer.setGameObjectPosition("sphere1", glm::vec3(-5.0f, 0.0f, 0.0f));
 
   renderer.addGameObject("cube1", 0, "Textures/container2.png", "Textures/container2_specular.png");
   renderer.setGameObjectPosition("cube1", glm::vec3(0.0f, 0.0f, 0.0f));
@@ -104,6 +104,11 @@ int main()
   renderer.setDirectionLightDiffuse(glm::vec3(0.4f, 0.4f, 0.4f));
   renderer.setDirectionLightSpecular(glm::vec3(0.5f, 0.5f, 0.5f));
 
+  int textureWidth = 960;
+  int textureHeight = 540;
+  GLuint texture = CreateOpenGLTexture(textureWidth, textureHeight);
+  GLuint fbo = CreateFramebuffer(texture, textureWidth, textureHeight);
+  float aspectRatio = static_cast<float>(textureWidth) / static_cast<float>(textureHeight);
   while (!glfwWindowShouldClose(renderer.window))
   {
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -112,18 +117,38 @@ int main()
 
     processInput(renderer.window);
 
+    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
-
-    glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderer.setPointLightDiffuse("pontLight6", glm::vec3((cos(glfwGetTime()) + 1) / 2, (sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2));
-    renderer.draw();
+
+    ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(textureWidth, textureHeight), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("OpenGL Render", NULL, ImGuiWindowFlags_NoCollapse);
+
+    ImVec2 availSize = ImGui::GetContentRegionAvail();
+
+    float imageWidth = availSize.x;
+    float imageHeight = imageWidth / aspectRatio;
+
+    if (imageHeight > availSize.y)
+    {
+      imageHeight = availSize.y;
+      imageWidth = imageHeight * aspectRatio;
+    }
+
+    RenderToTexture(fbo, textureWidth, textureHeight);
+
+    ImGui::Image(reinterpret_cast<ImTextureID>(texture), ImVec2(imageWidth, imageHeight), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::End();
 
     ImGui::Render();
+
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(renderer.window);
@@ -140,24 +165,75 @@ void processInput(GLFWwindow *window)
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
-  float cameraSpeed = 20.0f * deltaTime;
-
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    renderer.camera.ProcessKeyboard(FORWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    renderer.camera.ProcessKeyboard(BACKWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    renderer.camera.ProcessKeyboard(LEFT, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    renderer.camera.ProcessKeyboard(RIGHT, deltaTime);
-
-  if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+  if (renderer.controllingCamera)
   {
-    renderer.setSpotLightPosition("spotLight1", renderer.camera.Position);
-    renderer.setSpotLightDirection("spotLight1", renderer.camera.Front);
+    float cameraSpeed = 20.0f * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+      renderer.camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+      renderer.camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+      renderer.camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+      renderer.camera.ProcessKeyboard(RIGHT, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+    {
+      renderer.setSpotLightPosition("spotLight1", renderer.camera.Position);
+      renderer.setSpotLightDirection("spotLight1", renderer.camera.Front);
+    }
+    else
+    {
+      renderer.setSpotLightPosition("spotLight1", glm::vec3(10000000.0f, 1000000000.5f, 200000000000.0f));
+    }
   }
-  else
+}
+
+GLuint CreateOpenGLTexture(int width, int height)
+{
+  GLuint texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  return texture;
+}
+
+GLuint CreateFramebuffer(GLuint texture, int width, int height)
+{
+  GLuint fbo;
+  glGenFramebuffers(1, &fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+  GLuint depthBuffer;
+  glGenRenderbuffers(1, &depthBuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
   {
-    renderer.setSpotLightPosition("spotLight1", glm::vec3(10000000.0f, 1000000000.5f, 200000000000.0f));
+    std::cerr << "Framebuffer is not complete!" << std::endl;
   }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  return fbo;
+}
+
+void RenderToTexture(GLuint fbo, int width, int height)
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glViewport(0, 0, width, height);
+  glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  renderer.draw();
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -34,6 +34,7 @@ public:
 
   int ScreenW = 1920;
   int ScreenH = 1080;
+  bool controllingCamera;
 
   float lastX = ScreenW / 2, lastY = ScreenH / 2;
   bool firstMouse = true;
@@ -245,11 +246,11 @@ private:
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
-  bool controllingCamera;
 
   static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
   {
     Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    std::cout << "Hello World" << std::endl;
 
     if (renderer->controllingCamera)
     {
