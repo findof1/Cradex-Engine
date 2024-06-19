@@ -16,6 +16,9 @@
 #include "pointLight.h"
 #include "spotLight.h"
 #include "renderer.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 void processInput(GLFWwindow *window);
 
@@ -26,6 +29,17 @@ float lastFrame = 0.0f;
 
 int main()
 {
+
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+
+  ImGui::StyleColorsDark();
+
+  ImGui_ImplGlfw_InitForOpenGL(renderer.window, true);
+  ImGui_ImplOpenGL3_Init("#version 130");
+
   renderer.addModel("couch", "Objects/Couch/couch1.obj");
   renderer.addModel("backpack", "Objects/Backpack/backpack.obj");
   renderer.addModel("sphere", "Objects/Sphere/sphere.obj");
@@ -83,7 +97,7 @@ int main()
 
   renderer.addSpotLight("spotLight1", renderer.camera.Position, renderer.camera.Front, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, 12.5f, 17.5f);
 
-  renderer.setSpotLightVisibility("spotLight1", false);
+  renderer.setSpotLightOn("spotLight1", false);
 
   renderer.setDirectionLightDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
   renderer.setDirectionLightAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
@@ -98,11 +112,19 @@ int main()
 
     processInput(renderer.window);
 
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow();
+
     glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderer.setPointLightDiffuse("pontLight6", glm::vec3((cos(glfwGetTime()) + 1) / 2, (sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2));
     renderer.draw();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(renderer.window);
     glfwPollEvents();

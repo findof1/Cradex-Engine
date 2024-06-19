@@ -134,7 +134,14 @@ public:
     model = glm::translate(model, position);
     model = glm::scale(model, glm::vec3(0.2f));
     lightShader.setMat4("model", model);
-    lightShader.setVec3("color", diffuse.x, diffuse.y, diffuse.z);
+    float max = diffuse.x;
+    if (diffuse.y > max)
+      max = diffuse.y;
+    if (diffuse.z > max)
+      max = diffuse.z;
+
+    float multiplier = 1.0 / max;
+    lightShader.setVec3("color", diffuse.x * multiplier, diffuse.y * multiplier, diffuse.z * multiplier);
     glBindVertexArray(lightCubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);

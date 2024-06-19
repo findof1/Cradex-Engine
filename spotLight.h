@@ -16,7 +16,7 @@ public:
   int id;
   SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, Shader shader, int id) : position(position), direction(direction), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), cutOff(cutOff), outerCutOff(outerCutOff), id(id)
   {
-    show = true;
+    on = true;
 
     shader.use();
     shader.setVec3("spotLights[" + std::to_string(id) + "].position", position.x, position.y, position.z);
@@ -113,9 +113,9 @@ public:
     shader.setVec3("spotLights[" + std::to_string(id) + "].diffuse", diffuse.x, diffuse.y, diffuse.z);
   }
 
-  void setVisible(bool value)
+  void setOnOrOff(bool value)
   {
-    show = value;
+    on = value;
   }
 
   void setSpecular(glm::vec3 newSpecular, Shader shader)
@@ -147,7 +147,7 @@ public:
 
   void draw(Shader lightShader)
   {
-    if (show)
+    if (on)
     {
       lightShader.use();
       glm::mat4 model = glm::mat4(1.0f);
@@ -172,7 +172,7 @@ private:
   float quadratic;
   float cutOff;
   float outerCutOff;
-  bool show;
+  bool on;
   unsigned int lightCubeVAO;
   unsigned int VBO;
 };

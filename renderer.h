@@ -18,6 +18,9 @@
 #include "pointLight.h"
 #include "spotLight.h"
 #include "gameObject.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 class Renderer
 {
@@ -66,8 +69,9 @@ public:
       exit(EXIT_FAILURE);
     }
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetCursorPosCallback(window, mouse_callback);
 
     glEnable(GL_DEPTH_TEST);
@@ -154,9 +158,9 @@ public:
     SpotLights.at(name).setPosition(position, Shaders.at(shaderName));
   }
 
-  void setSpotLightVisibility(std::string name, bool value)
+  void setSpotLightOn(std::string name, bool value)
   {
-    SpotLights.at(name).setVisible(value);
+    SpotLights.at(name).setOnOrOff(value);
   }
 
   void setSpotLightDirection(std::string name, glm::vec3 direction, std::string shaderName = "lightingShader")
@@ -191,7 +195,9 @@ public:
     Shader shader = Shaders.at(lightObjShaderName);
     Shader lightingShader = Shaders.at(lightingShaderName);
     shader.use();
+
     shader.setMat4("view", view);
+
     shader.setMat4("model", model);
     shader.setMat4("projection", projection);
 
@@ -208,6 +214,7 @@ public:
     lightingShader.use();
 
     lightingShader.setMat4("view", view);
+
     lightingShader.setMat4("projection", projection);
     lightingShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 
@@ -238,41 +245,68 @@ private:
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
+  bool controllingCamera;
 
   static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
   {
     Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-    glViewport(0, 0, width, height);
-    renderer->ScreenW = width;
-    renderer->ScreenH = height;
+
+    if (renderer->controllingCamera)
+    {
+      glViewport(0, 0, width, height);
+      renderer->ScreenW = width;
+      renderer->ScreenH = height;
+    }
   }
 
   static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
   {
     Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (renderer->firstMouse)
+    if (renderer->controllingCamera)
     {
+      float xpos = static_cast<float>(xposIn);
+      float ypos = static_cast<float>(yposIn);
+
+      if (renderer->firstMouse)
+      {
+        renderer->lastX = xpos;
+        renderer->lastY = ypos;
+        renderer->firstMouse = false;
+      }
+
+      float xoffset = xpos - renderer->lastX;
+      float yoffset = renderer->lastY - ypos;
+
       renderer->lastX = xpos;
       renderer->lastY = ypos;
-      renderer->firstMouse = false;
+
+      renderer->camera.ProcessMouseMovement(xoffset, yoffset);
     }
+  }
 
-    float xoffset = xpos - renderer->lastX;
-    float yoffset = renderer->lastY - ypos;
-
-    renderer->lastX = xpos;
-    renderer->lastY = ypos;
-
-    renderer->camera.ProcessMouseMovement(xoffset, yoffset);
+  static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+  {
+    Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      renderer->controllingCamera = true;
+    }
+    else
+    {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      renderer->controllingCamera = false;
+      renderer->firstMouse = true;
+    }
   }
 
   static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
   {
     Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-    renderer->camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    if (renderer->controllingCamera)
+    {
+      renderer->camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    }
   }
 };
 
