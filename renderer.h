@@ -32,6 +32,11 @@ public:
   std::map<std::string, SpotLight> SpotLights;
   GLFWwindow *window;
 
+  glm::vec3 direction;
+  glm::vec3 ambient;
+  glm::vec3 diffuse;
+  glm::vec3 specular;
+
   int ScreenW = 1920;
   int ScreenH = 1080;
   bool controllingCamera;
@@ -113,9 +118,12 @@ public:
     Models.at(name)->scale = scale;
   }
 
-  void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, std::string shaderName = "lightingShader")
+  void addGameObject(std::string name, int type, const char *diffuseMap, const char *specularMap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::string shaderName = "lightingShader")
   {
     GameObject *obj = new GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName));
+    obj->position = position;
+    obj->rotation = rotation;
+    obj->scale = scale;
     GameObjects.insert(std::make_pair(name, obj));
   }
 
@@ -297,11 +305,6 @@ public:
   }
 
 private:
-  glm::vec3 direction;
-  glm::vec3 ambient;
-  glm::vec3 diffuse;
-  glm::vec3 specular;
-
   static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
   {
     Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));

@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include "External/json.hpp"
 #include <filesystem>
+#include <stdexcept>
 
 using json = nlohmann::json;
 
@@ -32,7 +33,19 @@ public:
     }
     else
     {
-      initializeScene();
+      try
+      {
+        int res = unserialize();
+        if (res == 1)
+        {
+          initializeScene();
+        }
+      }
+      catch (const std::exception &err)
+      {
+        std::cout << err.what() << std::endl;
+        initializeScene();
+      }
     }
   }
 
@@ -70,6 +83,36 @@ public:
     serializedJson["SpotLights"] = serializeSpotLights();
     serializedJson["Models"] = serializeModels();
 
+    json serializedDirectionalLight;
+
+    json serializedDirection;
+
+    serializedDirection["x"] = renderer.direction.x;
+    serializedDirection["y"] = renderer.direction.y;
+    serializedDirection["z"] = renderer.direction.z;
+
+    json serializedAmbient;
+    serializedAmbient["r"] = renderer.ambient.x;
+    serializedAmbient["g"] = renderer.ambient.y;
+    serializedAmbient["b"] = renderer.ambient.z;
+
+    json serializedDiffuse;
+    serializedDiffuse["r"] = renderer.diffuse.x;
+    serializedDiffuse["g"] = renderer.diffuse.y;
+    serializedDiffuse["b"] = renderer.diffuse.z;
+
+    json serializedSpecular;
+    serializedSpecular["r"] = renderer.specular.x;
+    serializedSpecular["g"] = renderer.specular.y;
+    serializedSpecular["b"] = renderer.specular.z;
+
+    serializedDirectionalLight["direction"] = serializedDirection;
+    serializedDirectionalLight["ambient"] = serializedAmbient;
+    serializedDirectionalLight["diffuse"] = serializedDiffuse;
+    serializedDirectionalLight["specular"] = serializedSpecular;
+
+    serializedJson["DirectionalLight"] = serializedDirectionalLight;
+
     std::ofstream outFile(scenePath, std::ios::out | std::ios::trunc);
 
     if (!outFile.is_open())
@@ -80,6 +123,145 @@ public:
     outFile << serializedJson.dump(4);
 
     outFile.close();
+  }
+
+  int unserialize()
+  {
+    std::ifstream inputFile(scenePath);
+    if (!inputFile.is_open())
+    {
+      std::cerr << "Failed to open file." << std::endl;
+      return 1;
+    }
+
+    std::string jsonString((std::istreambuf_iterator<char>(inputFile)),
+                           std::istreambuf_iterator<char>());
+
+    inputFile.close();
+
+    json data = json::parse(jsonString);
+
+    auto gameObjects = data["GameObjects"];
+    for (auto &gameObject : gameObjects)
+    {
+      std::string name = gameObject["name"];
+      float posX = gameObject["position"]["x"];
+      float posY = gameObject["position"]["y"];
+      float posZ = gameObject["position"]["z"];
+
+      float rotationX = gameObject["rotation"]["x"];
+      float rotationY = gameObject["rotation"]["y"];
+      float rotationZ = gameObject["rotation"]["z"];
+
+      float scaleX = gameObject["scale"]["x"];
+      float scaleY = gameObject["scale"]["y"];
+      float scaleZ = gameObject["scale"]["z"];
+
+      int type = gameObject["type"];
+
+      std::string diffusePath = gameObject["diffusePath"];
+      std::string specularPath = gameObject["specularPath"];
+      renderer.addGameObject(name, type, diffusePath.c_str(), specularPath.c_str(), glm::vec3(posX, posY, posZ), glm::vec3(rotationX, rotationY, rotationZ), glm::vec3(scaleX, scaleY, scaleZ));
+    }
+
+    auto pointLights = data["PointLights"];
+    for (auto &pointLight : pointLights)
+    {
+      std::string name = pointLight["name"];
+      float posX = pointLight["position"]["x"];
+      float posY = pointLight["position"]["y"];
+      float posZ = pointLight["position"]["z"];
+
+      float ambientR = pointLight["ambient"]["r"];
+      float ambientG = pointLight["ambient"]["g"];
+      float ambientB = pointLight["ambient"]["b"];
+
+      float diffuseR = pointLight["diffuse"]["r"];
+      float diffuseG = pointLight["diffuse"]["g"];
+      float diffuseB = pointLight["diffuse"]["b"];
+
+      float specularR = pointLight["specular"]["r"];
+      float specularG = pointLight["specular"]["g"];
+      float specularB = pointLight["specular"]["b"];
+
+      float constant = pointLight["constant"];
+      float linear = pointLight["linear"];
+      float quadratic = pointLight["quadratic"];
+
+      float intensity = pointLight["intensity"];
+
+      renderer.addPointLight(name, glm::vec3(posX, posY, posZ), glm::vec3(ambientR, ambientG, ambientB), glm::vec3(diffuseR, diffuseG, diffuseB), glm::vec3(specularR, specularG, specularB), constant, linear, quadratic, intensity);
+    }
+
+    auto spotLights = data["SpotLights"];
+    for (auto &spotLight : spotLights)
+    {
+      std::string name = spotLight["name"];
+      float posX = spotLight["position"]["x"];
+      float posY = spotLight["position"]["y"];
+      float posZ = spotLight["position"]["z"];
+
+      float directionX = spotLight["direction"]["x"];
+      float directionY = spotLight["direction"]["y"];
+      float directionZ = spotLight["direction"]["z"];
+
+      float ambientR = spotLight["ambient"]["r"];
+      float ambientG = spotLight["ambient"]["g"];
+      float ambientB = spotLight["ambient"]["b"];
+
+      float diffuseR = spotLight["diffuse"]["r"];
+      float diffuseG = spotLight["diffuse"]["g"];
+      float diffuseB = spotLight["diffuse"]["b"];
+
+      float specularR = spotLight["specular"]["r"];
+      float specularG = spotLight["specular"]["g"];
+      float specularB = spotLight["specular"]["b"];
+
+      float constant = spotLight["constant"];
+      float linear = spotLight["linear"];
+      float quadratic = spotLight["quadratic"];
+
+      float cutOff = spotLight["cutOff"];
+      float outerCutOff = spotLight["outerCutOff"];
+
+      float on = spotLight["on"];
+
+      renderer.addSpotLight(name, glm::vec3(posX, posY, posZ), glm::vec3(directionX, directionY, directionZ), glm::vec3(ambientR, ambientG, ambientB), glm::vec3(diffuseR, diffuseG, diffuseB), glm::vec3(specularR, specularG, specularB), constant, linear, quadratic, cutOff, outerCutOff);
+
+      renderer.SpotLights.at(name).on = on;
+    }
+
+    auto Models = data["Models"];
+    for (auto &model : Models)
+    {
+      std::string name = model["name"];
+      float posX = model["position"]["x"];
+      float posY = model["position"]["y"];
+      float posZ = model["position"]["z"];
+
+      float rotationX = model["rotation"]["x"];
+      float rotationY = model["rotation"]["y"];
+      float rotationZ = model["rotation"]["z"];
+
+      float scaleX = model["scale"]["x"];
+      float scaleY = model["scale"]["y"];
+      float scaleZ = model["scale"]["z"];
+
+      std::string path = model["path"];
+
+      renderer.addModel(name, path);
+      renderer.Models.at(name)->position = glm::vec3(posX, posY, posZ);
+      renderer.Models.at(name)->rotation = glm::vec3(rotationX, rotationY, rotationZ);
+      renderer.Models.at(name)->scale = glm::vec3(scaleX, scaleY, scaleZ);
+    }
+
+    auto DirectionalLight = data["DirectionalLight"];
+
+    renderer.setDirectionLightDirection(glm::vec3(DirectionalLight["direction"]["x"], DirectionalLight["direction"]["y"], DirectionalLight["direction"]["z"]));
+    renderer.setDirectionLightAmbient(glm::vec3(DirectionalLight["ambient"]["r"], DirectionalLight["ambient"]["g"], DirectionalLight["ambient"]["b"]));
+    renderer.setDirectionLightDiffuse(glm::vec3(DirectionalLight["diffuse"]["r"], DirectionalLight["diffuse"]["g"], DirectionalLight["diffuse"]["b"]));
+    renderer.setDirectionLightSpecular(glm::vec3(DirectionalLight["specular"]["r"], DirectionalLight["specular"]["g"], DirectionalLight["specular"]["b"]));
+    return 0;
   }
 
 private:
