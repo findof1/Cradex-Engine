@@ -81,7 +81,7 @@ public:
     if (!success)
     {
       glGetProgramInfoLog(ID, 1024, NULL, infoLog);
-      std::cout << "ERROR::PROGRAM_LINKING_ERROR" << std::endl;
+      std::cout << "ERROR::PROGRAM_LINKING_ERROR: " << infoLog << std::endl;
     }
 
     glDeleteShader(vertex);

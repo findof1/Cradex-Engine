@@ -4,12 +4,11 @@
 #include <glad/glad.h>
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
-
 #include "shader.h"
-
 #include <string>
 #include <vector>
-
+#include "External/json.hpp"
+using json = nlohmann::json;
 class GameObject
 {
 public:
@@ -17,7 +16,7 @@ public:
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;
-  GameObject(int type, const char *diffuse, const char *specular, Shader shader) : type(type)
+  GameObject(int type, const char *diffuse, const char *specular, Shader shader) : type(type), diffusePath(diffuse), specularPath(specular)
   {
     position = glm::vec3(0.0f, 0.0f, 0.0f);
     rotation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -87,9 +86,45 @@ public:
     }
   }
 
+  json serialize()
+  {
+    json serializedObject;
+
+    json serializedPosition;
+    serializedPosition["x"] = position.x;
+    serializedPosition["y"] = position.y;
+    serializedPosition["z"] = position.z;
+
+    serializedObject["position"] = serializedPosition;
+
+    json serializedRotation;
+    serializedRotation["x"] = rotation.x;
+    serializedRotation["y"] = rotation.y;
+    serializedRotation["z"] = rotation.z;
+
+    serializedObject["rotation"] = serializedRotation;
+
+    json serializedScale;
+    serializedScale["x"] = scale.x;
+    serializedScale["y"] = scale.y;
+    serializedScale["z"] = scale.z;
+
+    serializedObject["scale"] = serializedScale;
+
+    serializedObject["type"] = type;
+
+    serializedObject["diffusePath"] = diffusePath;
+
+    serializedObject["specularPath"] = specularPath;
+
+    return serializedObject;
+  }
+
 private:
   unsigned int diffuseMap;
   unsigned int specularMap;
+  std::string diffusePath;
+  std::string specularPath;
   unsigned int VBO;
   unsigned int VAO;
   int vertexCount;

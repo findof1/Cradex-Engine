@@ -53,7 +53,7 @@ public:
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    window = glfwCreateWindow(ScreenW, ScreenH, "3D Renderer", NULL, NULL);
+    window = glfwCreateWindow(ScreenW, ScreenH, "Cradex Engine", NULL, NULL);
     if (window == NULL)
     {
       std::cout << "Failed to create GLFW window" << std::endl;
@@ -119,8 +119,50 @@ public:
     GameObjects.insert(std::make_pair(name, obj));
   }
 
+  void addGameObjectDefault(int type, const char *diffuseMap, const char *specularMap, std::string shaderName = "lightingShader")
+  {
+    int i = 1;
+    std::string name;
+    std::string kind;
+    if (type == 0)
+    {
+      kind = "cube";
+    }
+
+    while ((true))
+    {
+      if (GameObjects.find(kind + std::to_string(i)) == GameObjects.end())
+      {
+        name = kind + std::to_string(i);
+        break;
+      }
+      i++;
+    }
+
+    GameObject *obj = new GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName));
+    GameObjects.insert(std::make_pair(name, obj));
+  }
+
   void addPointLight(std::string name, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName = "lightingShader")
   {
+    PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, Shaders.at(shaderName), PointLights.size())));
+  }
+
+  void addPointLightDefault(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, std::string shaderName = "lightingShader")
+  {
+    int i = 1;
+    std::string name;
+
+    while ((true))
+    {
+      if (PointLights.find("pointLight" + std::to_string(i)) == PointLights.end())
+      {
+        name = "pointLight" + std::to_string(i);
+        break;
+      }
+      i++;
+    }
+
     PointLights.insert(std::make_pair(name, PointLight(position, ambient, diffuse, specular, constant, linear, quadratic, intensity, Shaders.at(shaderName), PointLights.size())));
   }
 
@@ -141,6 +183,29 @@ public:
 
   void addSpotLight(std::string name, glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, std::string shaderName = "lightingShader")
   {
+    SpotLights.insert(std::make_pair(name, SpotLight(position, direction, ambient, diffuse, specular, constant, linear, quadratic, cutOff, outerCutOff, Shaders.at(shaderName), SpotLights.size())));
+  }
+
+  void setSpotLightDiffuse(std::string name, glm::vec3 diffuse, std::string shaderName = "lightingShader")
+  {
+    SpotLights.at(name).setDiffuse(diffuse, Shaders.at(shaderName));
+  }
+
+  void addSpotLightDefault(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, std::string shaderName = "lightingShader")
+  {
+    int i = 1;
+    std::string name;
+
+    while ((true))
+    {
+      if (SpotLights.find("spotLight" + std::to_string(i)) == SpotLights.end())
+      {
+        name = "spotLight" + std::to_string(i);
+        break;
+      }
+      i++;
+    }
+
     SpotLights.insert(std::make_pair(name, SpotLight(position, direction, ambient, diffuse, specular, constant, linear, quadratic, cutOff, outerCutOff, Shaders.at(shaderName), SpotLights.size())));
   }
 

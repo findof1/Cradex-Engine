@@ -6,10 +6,10 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 
 #include "shader.h"
-
+#include "External/json.hpp"
 #include <string>
 #include <vector>
-
+using json = nlohmann::json;
 class PointLight
 {
 public:
@@ -154,6 +154,49 @@ public:
     glBindVertexArray(lightCubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
+  }
+
+  json serialize()
+  {
+    json serializedPointLight;
+
+    json serializedPosition;
+    serializedPosition["x"] = position.x;
+    serializedPosition["y"] = position.y;
+    serializedPosition["z"] = position.z;
+
+    serializedPointLight["position"] = serializedPosition;
+
+    json serializedAmbient;
+    serializedAmbient["x"] = ambient.x;
+    serializedAmbient["y"] = ambient.y;
+    serializedAmbient["z"] = ambient.z;
+
+    serializedPointLight["ambient"] = serializedAmbient;
+
+    json serializedDiffuse;
+    serializedDiffuse["x"] = diffuse.x;
+    serializedDiffuse["y"] = diffuse.y;
+    serializedDiffuse["z"] = diffuse.z;
+
+    serializedPointLight["diffuse"] = serializedDiffuse;
+
+    json serializedSpecular;
+    serializedSpecular["x"] = specular.x;
+    serializedSpecular["y"] = specular.y;
+    serializedSpecular["z"] = specular.z;
+
+    serializedPointLight["specular"] = serializedSpecular;
+
+    serializedPointLight["constant"] = constant;
+
+    serializedPointLight["linear"] = linear;
+
+    serializedPointLight["quadratic"] = quadratic;
+
+    serializedPointLight["intensity"] = intensity;
+
+    return serializedPointLight;
   }
 
 private:

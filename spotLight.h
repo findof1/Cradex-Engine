@@ -6,14 +6,24 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 
 #include "shader.h"
-
+#include "External/json.hpp"
 #include <string>
 #include <vector>
-
+using json = nlohmann::json;
 class SpotLight
 {
 public:
   int id;
+  glm::vec3 position;
+  glm::vec3 direction;
+  glm::vec3 ambient;
+  glm::vec3 diffuse;
+  glm::vec3 specular;
+  float constant;
+  float linear;
+  float quadratic;
+  float cutOff;
+  float outerCutOff;
   SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, Shader shader, int id) : position(position), direction(direction), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), cutOff(cutOff), outerCutOff(outerCutOff), id(id)
   {
     on = true;
@@ -161,17 +171,59 @@ public:
     }
   }
 
+  json serialize()
+  {
+    json serializedSpotLight;
+
+    json serializedPosition;
+    serializedPosition["x"] = position.x;
+    serializedPosition["y"] = position.y;
+    serializedPosition["z"] = position.z;
+
+    serializedSpotLight["position"] = serializedPosition;
+
+    json serializedDirection;
+    serializedDirection["x"] = direction.x;
+    serializedDirection["y"] = direction.y;
+    serializedDirection["z"] = direction.z;
+
+    serializedSpotLight["direction"] = serializedDirection;
+
+    json serializedAmbient;
+    serializedAmbient["x"] = ambient.x;
+    serializedAmbient["y"] = ambient.y;
+    serializedAmbient["z"] = ambient.z;
+
+    serializedSpotLight["ambient"] = serializedAmbient;
+
+    json serializedDiffuse;
+    serializedDiffuse["x"] = diffuse.x;
+    serializedDiffuse["y"] = diffuse.y;
+    serializedDiffuse["z"] = diffuse.z;
+
+    serializedSpotLight["diffuse"] = serializedDiffuse;
+
+    json serializedSpecular;
+    serializedSpecular["x"] = specular.x;
+    serializedSpecular["y"] = specular.y;
+    serializedSpecular["z"] = specular.z;
+
+    serializedSpotLight["specular"] = serializedSpecular;
+
+    serializedSpotLight["constant"] = constant;
+
+    serializedSpotLight["linear"] = linear;
+
+    serializedSpotLight["quadratic"] = quadratic;
+
+    serializedSpotLight["cutOff"] = cutOff;
+
+    serializedSpotLight["outerCutOff"] = outerCutOff;
+
+    return serializedSpotLight;
+  }
+
 private:
-  glm::vec3 position;
-  glm::vec3 direction;
-  glm::vec3 ambient;
-  glm::vec3 diffuse;
-  glm::vec3 specular;
-  float constant;
-  float linear;
-  float quadratic;
-  float cutOff;
-  float outerCutOff;
   bool on;
   unsigned int lightCubeVAO;
   unsigned int VBO;
