@@ -21,6 +21,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "Application.h"
 
 class Renderer
 {
@@ -31,6 +32,7 @@ public:
   std::map<std::string, PointLight> PointLights;
   std::map<std::string, SpotLight> SpotLights;
   GLFWwindow *window;
+  std::vector<std::string> dropped_files;
 
   glm::vec3 direction;
   glm::vec3 ambient;
@@ -184,6 +186,21 @@ public:
     PointLights.at(name).setDiffuse(diffuse, Shaders.at(shaderName));
   }
 
+  void setPointLightAmbient(std::string name, glm::vec3 ambient, std::string shaderName = "lightingShader")
+  {
+    PointLights.at(name).setAmbient(ambient, Shaders.at(shaderName));
+  }
+
+  void setPointLightSpecular(std::string name, glm::vec3 specular, std::string shaderName = "lightingShader")
+  {
+    PointLights.at(name).setSpecular(specular, Shaders.at(shaderName));
+  }
+
+  void setPointLightIntensity(std::string name, float intensity, std::string shaderName = "lightingShader")
+  {
+    PointLights.at(name).setIntensity(intensity, Shaders.at(shaderName));
+  }
+
   void addShader(std::string name, Shader shader)
   {
     Shaders.insert(std::make_pair(name, shader));
@@ -304,12 +321,32 @@ public:
     }
   }
 
+  std::string copy_file_to_folder(const std::string &source, const std::string &destination_folder)
+  {
+    try
+    {
+      std::filesystem::path source_path(source);
+      std::filesystem::path destination_path(destination_folder);
+
+      std::filesystem::create_directories(destination_path);
+
+      destination_path /= source_path.filename();
+
+      std::filesystem::copy_file(source_path, destination_path, std::filesystem::copy_options::overwrite_existing);
+
+      return destination_path.string();
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+      std::cerr << "Filesystem error: " << e.what() << std::endl;
+      return "";
+    }
+  }
+
 private:
   static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
   {
     Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-    std::cout << "Hello World" << std::endl;
-
     if (renderer->controllingCamera)
     {
       glViewport(0, 0, width, height);

@@ -157,7 +157,18 @@ public:
       float scaleY = gameObject["scale"]["y"];
       float scaleZ = gameObject["scale"]["z"];
 
-      int type = gameObject["type"];
+      int type;
+
+      if (gameObject.contains("type") && !gameObject["type"].is_null())
+      {
+
+        type = gameObject["type"];
+      }
+      else
+      {
+
+        type = 0;
+      }
 
       std::string diffusePath = gameObject["diffusePath"];
       std::string specularPath = gameObject["specularPath"];
@@ -224,7 +235,7 @@ public:
       float cutOff = spotLight["cutOff"];
       float outerCutOff = spotLight["outerCutOff"];
 
-      float on = spotLight["on"];
+      bool on = spotLight["on"];
 
       renderer.addSpotLight(name, glm::vec3(posX, posY, posZ), glm::vec3(directionX, directionY, directionZ), glm::vec3(ambientR, ambientG, ambientB), glm::vec3(diffuseR, diffuseG, diffuseB), glm::vec3(specularR, specularG, specularB), constant, linear, quadratic, cutOff, outerCutOff);
 
@@ -250,9 +261,10 @@ public:
       std::string path = model["path"];
 
       renderer.addModel(name, path);
-      renderer.Models.at(name)->position = glm::vec3(posX, posY, posZ);
-      renderer.Models.at(name)->rotation = glm::vec3(rotationX, rotationY, rotationZ);
-      renderer.Models.at(name)->scale = glm::vec3(scaleX, scaleY, scaleZ);
+      Model *createdModel = renderer.Models.at(name);
+      createdModel->position = glm::vec3(posX, posY, posZ);
+      createdModel->rotation = glm::vec3(rotationX, rotationY, rotationZ);
+      createdModel->scale = glm::vec3(scaleX, scaleY, scaleZ);
     }
 
     auto DirectionalLight = data["DirectionalLight"];

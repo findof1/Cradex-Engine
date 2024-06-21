@@ -192,23 +192,23 @@ public:
     serializedSpotLight["direction"] = serializedDirection;
 
     json serializedAmbient;
-    serializedAmbient["x"] = ambient.x;
-    serializedAmbient["y"] = ambient.y;
-    serializedAmbient["z"] = ambient.z;
+    serializedAmbient["r"] = ambient.x;
+    serializedAmbient["g"] = ambient.y;
+    serializedAmbient["b"] = ambient.z;
 
     serializedSpotLight["ambient"] = serializedAmbient;
 
     json serializedDiffuse;
-    serializedDiffuse["x"] = diffuse.x;
-    serializedDiffuse["y"] = diffuse.y;
-    serializedDiffuse["z"] = diffuse.z;
+    serializedDiffuse["r"] = diffuse.x;
+    serializedDiffuse["g"] = diffuse.y;
+    serializedDiffuse["b"] = diffuse.z;
 
     serializedSpotLight["diffuse"] = serializedDiffuse;
 
     json serializedSpecular;
-    serializedSpecular["x"] = specular.x;
-    serializedSpecular["y"] = specular.y;
-    serializedSpecular["z"] = specular.z;
+    serializedSpecular["r"] = specular.x;
+    serializedSpecular["g"] = specular.y;
+    serializedSpecular["b"] = specular.z;
 
     serializedSpotLight["specular"] = serializedSpecular;
 

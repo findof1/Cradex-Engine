@@ -11,6 +11,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "renderer.h"
+#include "Application.h"
 
 class UI
 {
@@ -32,6 +33,8 @@ public:
     texture = CreateOpenGLTexture(textureWidth, textureHeight);
     fbo = CreateFramebuffer(texture, textureWidth, textureHeight);
     aspectRatio = static_cast<float>(textureWidth) / static_cast<float>(textureHeight);
+
+    glfwSetDropCallback(renderer->window, drop_callback);
   }
 
   void draw()
@@ -43,6 +46,7 @@ public:
     displayEditor();
     displayHierarchy();
     displayPropertiesEditor();
+    displayTextureManager();
 
     ImGui::Render();
 
@@ -70,6 +74,39 @@ private:
     }
 
     return 0;
+  }
+
+  static void drop_callback(GLFWwindow *window, int count, const char **paths)
+  {
+    Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    ImVec2 tex_drop_pos = ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2 * 1.5);
+    ImVec2 tex_drop_size = ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH - (renderer->ScreenH / 2 * 1.5));
+    double mouse_x, mouse_y;
+    glfwGetCursorPos(window, &mouse_x, &mouse_y);
+
+    if (mouse_x >= tex_drop_pos.x && mouse_x <= (tex_drop_pos.x + tex_drop_size.x) &&
+        mouse_y >= tex_drop_pos.y && mouse_y <= (tex_drop_pos.y + tex_drop_size.y))
+    {
+      for (int i = 0; i < count; i++)
+      {
+        renderer->dropped_files.push_back(paths[i]);
+
+        const std::string destination_folder = "Textures";
+
+        for (int i = 0; i < count; i++)
+        {
+          std::string new_path = renderer->copy_file_to_folder(paths[i], destination_folder);
+          if (!new_path.empty())
+          {
+            renderer->dropped_files.push_back(new_path);
+          }
+          else
+          {
+            std::cerr << "Failed to copy file: " << paths[i] << std::endl;
+          }
+        }
+      }
+    }
   }
 
   void displayHierarchy()
@@ -131,6 +168,18 @@ private:
       }
     }
     ImGui::Columns(1);
+    ImGui::End();
+  }
+
+  void displayTextureManager()
+  {
+
+    ImGui::SetNextWindowPos(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2 * 1.5), ImGuiCond_Always);
+
+    ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH - (renderer->ScreenH / 2 * 1.5)), ImGuiCond_Always);
+
+    ImGui::Begin("Texture Manager", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
     ImGui::End();
   }
 
@@ -208,12 +257,12 @@ private:
     ImGui::PushID("YPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->position.y);
-    static char buf2[32];
-    strcpy(buf2, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->position.y = atof(buf2);
+      renderer->GameObjects.at(editing)->position.y = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -223,12 +272,12 @@ private:
     ImGui::PushID("ZPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->position.z);
-    static char buf3[32];
-    strcpy(buf3, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->position.z = atof(buf3);
+      renderer->GameObjects.at(editing)->position.z = atof(buf);
     }
     ImGui::PopID();
 
@@ -239,12 +288,12 @@ private:
     ImGui::PushID("XScale");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->scale.x);
-    static char buf4[32];
-    strcpy(buf4, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##X", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->scale.x = atof(buf4);
+      renderer->GameObjects.at(editing)->scale.x = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -254,12 +303,12 @@ private:
     ImGui::PushID("YScale");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->scale.y);
-    static char buf5[32];
-    strcpy(buf5, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->scale.y = atof(buf5);
+      renderer->GameObjects.at(editing)->scale.y = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -269,12 +318,12 @@ private:
     ImGui::PushID("ZScale");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->scale.z);
-    static char buf6[32];
-    strcpy(buf6, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->scale.z = atof(buf6);
+      renderer->GameObjects.at(editing)->scale.z = atof(buf);
     }
     ImGui::PopID();
 
@@ -285,12 +334,12 @@ private:
     ImGui::PushID("XRotation");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->rotation.x);
-    static char buf7[32];
-    strcpy(buf7, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##X", buf7, sizeof(buf7), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->rotation.x = atof(buf7);
+      renderer->GameObjects.at(editing)->rotation.x = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -300,12 +349,12 @@ private:
     ImGui::PushID("YRotation");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->rotation.y);
-    static char buf8[32];
-    strcpy(buf8, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf8, sizeof(buf8), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->rotation.y = atof(buf8);
+      renderer->GameObjects.at(editing)->rotation.y = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -315,12 +364,12 @@ private:
     ImGui::PushID("ZRotation");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->GameObjects.at(editing)->rotation.z);
-    static char buf9[32];
-    strcpy(buf9, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf9, sizeof(buf9), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->GameObjects.at(editing)->rotation.z = atof(buf9);
+      renderer->GameObjects.at(editing)->rotation.z = atof(buf);
     }
     ImGui::PopID();
     ImGui::Columns(1);
@@ -355,12 +404,12 @@ private:
     ImGui::PushID("YPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->PointLights.at(editing).position.y);
-    static char buf2[32];
-    strcpy(buf2, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setPointLightPosition(editing, glm::vec3(renderer->PointLights.at(editing).position.x, atof(buf2), renderer->PointLights.at(editing).position.z));
+      renderer->setPointLightPosition(editing, glm::vec3(renderer->PointLights.at(editing).position.x, atof(buf), renderer->PointLights.at(editing).position.z));
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -370,12 +419,61 @@ private:
     ImGui::PushID("ZPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->PointLights.at(editing).position.z);
-    static char buf3[32];
-    strcpy(buf3, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setPointLightPosition(editing, glm::vec3(renderer->PointLights.at(editing).position.x, renderer->PointLights.at(editing).position.y, atof(buf3)));
+      renderer->setPointLightPosition(editing, glm::vec3(renderer->PointLights.at(editing).position.x, renderer->PointLights.at(editing).position.y, atof(buf)));
+    }
+    ImGui::PopID();
+
+    ImGui::Text("Ambient");
+
+    ImGui::Text("R:");
+    ImGui::SameLine();
+    ImGui::PushID("RAmbient");
+    ImGui::SetNextItemWidth(30);
+
+    valueStr = std::to_string(renderer->PointLights.at(editing).ambient.x * 255);
+
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##R", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+
+      renderer->setPointLightAmbient(editing, glm::vec3(atof(buf) / 255, renderer->PointLights.at(editing).ambient.y, renderer->PointLights.at(editing).ambient.z));
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("G:");
+    ImGui::SameLine();
+    ImGui::PushID("GAmbient");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->PointLights.at(editing).ambient.y * 255);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##G", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->setPointLightAmbient(editing, glm::vec3(renderer->PointLights.at(editing).ambient.x, atof(buf) / 255, renderer->PointLights.at(editing).ambient.z));
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("B:");
+    ImGui::SameLine();
+    ImGui::PushID("BAmbient");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->PointLights.at(editing).ambient.z * 255);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->setPointLightAmbient(editing, glm::vec3(renderer->PointLights.at(editing).ambient.x, renderer->PointLights.at(editing).ambient.y, atof(buf) / 255));
     }
     ImGui::PopID();
 
@@ -388,13 +486,13 @@ private:
 
     valueStr = std::to_string(renderer->PointLights.at(editing).diffuse.x * 255);
 
-    static char buf4[32];
-    strcpy(buf4, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##R", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##R", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
 
-      renderer->setPointLightDiffuse(editing, glm::vec3(atof(buf4) / 255, renderer->PointLights.at(editing).diffuse.y, renderer->PointLights.at(editing).diffuse.z));
+      renderer->setPointLightDiffuse(editing, glm::vec3(atof(buf) / 255, renderer->PointLights.at(editing).diffuse.y, renderer->PointLights.at(editing).diffuse.z));
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -404,12 +502,12 @@ private:
     ImGui::PushID("GDiffuse");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->PointLights.at(editing).diffuse.y * 255);
-    static char buf5[32];
-    strcpy(buf5, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##G", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##G", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setPointLightDiffuse(editing, glm::vec3(renderer->PointLights.at(editing).diffuse.x, atof(buf5) / 255, renderer->PointLights.at(editing).diffuse.z));
+      renderer->setPointLightDiffuse(editing, glm::vec3(renderer->PointLights.at(editing).diffuse.x, atof(buf) / 255, renderer->PointLights.at(editing).diffuse.z));
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -419,12 +517,61 @@ private:
     ImGui::PushID("BDiffuse");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->PointLights.at(editing).diffuse.z * 255);
-    static char buf6[32];
-    strcpy(buf6, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##B", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setPointLightDiffuse(editing, glm::vec3(renderer->PointLights.at(editing).diffuse.x, renderer->PointLights.at(editing).diffuse.y, atof(buf6) / 255));
+      renderer->setPointLightDiffuse(editing, glm::vec3(renderer->PointLights.at(editing).diffuse.x, renderer->PointLights.at(editing).diffuse.y, atof(buf) / 255));
+    }
+    ImGui::PopID();
+
+    ImGui::Text("Specular");
+
+    ImGui::Text("R:");
+    ImGui::SameLine();
+    ImGui::PushID("RSpecular");
+    ImGui::SetNextItemWidth(30);
+
+    valueStr = std::to_string(renderer->PointLights.at(editing).specular.x * 255);
+
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##R", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+
+      renderer->setPointLightSpecular(editing, glm::vec3(atof(buf) / 255, renderer->PointLights.at(editing).specular.y, renderer->PointLights.at(editing).specular.z));
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("G:");
+    ImGui::SameLine();
+    ImGui::PushID("GSpecular");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->PointLights.at(editing).specular.y * 255);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##G", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->setPointLightSpecular(editing, glm::vec3(renderer->PointLights.at(editing).specular.x, atof(buf) / 255, renderer->PointLights.at(editing).specular.z));
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("B:");
+    ImGui::SameLine();
+    ImGui::PushID("BSpecular");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->PointLights.at(editing).specular.z * 255);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->setPointLightSpecular(editing, glm::vec3(renderer->PointLights.at(editing).specular.x, renderer->PointLights.at(editing).specular.y, atof(buf) / 255));
     }
     ImGui::PopID();
 
@@ -460,12 +607,12 @@ private:
     ImGui::PushID("YPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->SpotLights.at(editing).position.y);
-    static char buf2[32];
-    strcpy(buf2, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setSpotLightPosition(editing, glm::vec3(renderer->SpotLights.at(editing).position.x, atof(buf2), renderer->SpotLights.at(editing).position.z));
+      renderer->setSpotLightPosition(editing, glm::vec3(renderer->SpotLights.at(editing).position.x, atof(buf), renderer->SpotLights.at(editing).position.z));
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -475,12 +622,12 @@ private:
     ImGui::PushID("ZPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->SpotLights.at(editing).position.z);
-    static char buf3[32];
-    strcpy(buf3, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setSpotLightPosition(editing, glm::vec3(renderer->SpotLights.at(editing).position.x, renderer->SpotLights.at(editing).position.y, atof(buf3)));
+      renderer->setSpotLightPosition(editing, glm::vec3(renderer->SpotLights.at(editing).position.x, renderer->SpotLights.at(editing).position.y, atof(buf)));
     }
     ImGui::PopID();
 
@@ -493,13 +640,13 @@ private:
 
     valueStr = std::to_string(renderer->SpotLights.at(editing).diffuse.x * 255);
 
-    static char buf4[32];
-    strcpy(buf4, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##R", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##R", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
 
-      renderer->setSpotLightDiffuse(editing, glm::vec3(atof(buf4) / 255, renderer->SpotLights.at(editing).diffuse.y, renderer->SpotLights.at(editing).diffuse.z));
+      renderer->setSpotLightDiffuse(editing, glm::vec3(atof(buf) / 255, renderer->SpotLights.at(editing).diffuse.y, renderer->SpotLights.at(editing).diffuse.z));
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -509,12 +656,12 @@ private:
     ImGui::PushID("GDiffuse");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->SpotLights.at(editing).diffuse.y * 255);
-    static char buf5[32];
-    strcpy(buf5, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##G", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##G", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setSpotLightDiffuse(editing, glm::vec3(renderer->SpotLights.at(editing).diffuse.x, atof(buf5) / 255, renderer->SpotLights.at(editing).diffuse.z));
+      renderer->setSpotLightDiffuse(editing, glm::vec3(renderer->SpotLights.at(editing).diffuse.x, atof(buf) / 255, renderer->SpotLights.at(editing).diffuse.z));
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -524,12 +671,12 @@ private:
     ImGui::PushID("BDiffuse");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->SpotLights.at(editing).diffuse.z * 255);
-    static char buf6[32];
-    strcpy(buf6, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##B", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->setSpotLightDiffuse(editing, glm::vec3(renderer->SpotLights.at(editing).diffuse.x, renderer->SpotLights.at(editing).diffuse.y, atof(buf6) / 255));
+      renderer->setSpotLightDiffuse(editing, glm::vec3(renderer->SpotLights.at(editing).diffuse.x, renderer->SpotLights.at(editing).diffuse.y, atof(buf) / 255));
     }
     ImGui::PopID();
 
@@ -562,12 +709,12 @@ private:
     ImGui::PushID("YPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->position.y);
-    static char buf2[32];
-    strcpy(buf2, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->position.y = atof(buf2);
+      renderer->Models.at(editing)->position.y = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -577,12 +724,12 @@ private:
     ImGui::PushID("ZPos");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->position.z);
-    static char buf3[32];
-    strcpy(buf3, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf3, sizeof(buf3), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->position.z = atof(buf3);
+      renderer->Models.at(editing)->position.z = atof(buf);
     }
     ImGui::PopID();
 
@@ -593,12 +740,12 @@ private:
     ImGui::PushID("XScale");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->scale.x);
-    static char buf4[32];
-    strcpy(buf4, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##X", buf4, sizeof(buf4), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->scale.x = atof(buf4);
+      renderer->Models.at(editing)->scale.x = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -608,12 +755,12 @@ private:
     ImGui::PushID("YScale");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->scale.y);
-    static char buf5[32];
-    strcpy(buf5, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf5, sizeof(buf5), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->scale.y = atof(buf5);
+      renderer->Models.at(editing)->scale.y = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -623,12 +770,12 @@ private:
     ImGui::PushID("ZScale");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->scale.z);
-    static char buf6[32];
-    strcpy(buf6, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf6, sizeof(buf6), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->scale.z = atof(buf6);
+      renderer->Models.at(editing)->scale.z = atof(buf);
     }
     ImGui::PopID();
 
@@ -639,12 +786,12 @@ private:
     ImGui::PushID("XRotation");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->rotation.x);
-    static char buf7[32];
-    strcpy(buf7, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##X", buf7, sizeof(buf7), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->rotation.x = atof(buf7);
+      renderer->Models.at(editing)->rotation.x = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -654,12 +801,12 @@ private:
     ImGui::PushID("YRotation");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->rotation.y);
-    static char buf8[32];
-    strcpy(buf8, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Y", buf8, sizeof(buf8), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->rotation.y = atof(buf8);
+      renderer->Models.at(editing)->rotation.y = atof(buf);
     }
     ImGui::PopID();
     ImGui::SameLine();
@@ -669,12 +816,12 @@ private:
     ImGui::PushID("ZRotation");
     ImGui::SetNextItemWidth(30);
     valueStr = std::to_string(renderer->Models.at(editing)->rotation.z);
-    static char buf9[32];
-    strcpy(buf9, valueStr.c_str());
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
 
-    if (ImGui::InputText("##Z", buf9, sizeof(buf9), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
     {
-      renderer->Models.at(editing)->rotation.z = atof(buf9);
+      renderer->Models.at(editing)->rotation.z = atof(buf);
     }
     ImGui::PopID();
     ImGui::Columns(1);
@@ -716,6 +863,14 @@ private:
     return texture;
   }
 
+  void resetBuffer(char *buffer)
+  {
+    for (int i = 0; i < sizeof(buffer); i++)
+    {
+      buffer[i] = '\0';
+    }
+  }
+
   GLuint CreateFramebuffer(GLuint texture, int width, int height)
   {
     GLuint fbo;
@@ -752,4 +907,5 @@ private:
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
 };
+
 #endif
