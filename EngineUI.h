@@ -35,6 +35,8 @@ public:
     aspectRatio = static_cast<float>(textureWidth) / static_cast<float>(textureHeight);
 
     glfwSetDropCallback(renderer->window, drop_callback);
+
+    renderer->getTexturePaths();
   }
 
   void draw()
@@ -62,7 +64,7 @@ private:
   GLuint fbo;
   float aspectRatio;
 
-  const char *editing = "";
+  std::string editing = "";
 
   static int numbersOnlyTextCallback(ImGuiInputTextCallbackData *data)
   {
@@ -89,24 +91,11 @@ private:
     {
       for (int i = 0; i < count; i++)
       {
-        renderer->dropped_files.push_back(paths[i]);
-
         const std::string destination_folder = "Textures";
-
-        for (int i = 0; i < count; i++)
-        {
-          std::string new_path = renderer->copy_file_to_folder(paths[i], destination_folder);
-          if (!new_path.empty())
-          {
-            renderer->dropped_files.push_back(new_path);
-          }
-          else
-          {
-            std::cerr << "Failed to copy file: " << paths[i] << std::endl;
-          }
-        }
+        renderer->copy_file_to_folder(paths[i], destination_folder);
       }
     }
+    renderer->getTexturePaths();
   }
 
   void displayHierarchy()
@@ -180,7 +169,61 @@ private:
 
     ImGui::Begin("Texture Manager", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
+    for (auto path : renderer->texturePaths)
+    {
+
+      if (ImGui::Button(path.c_str()))
+      {
+        editing = path.c_str();
+      }
+      ImGui::SameLine();
+    }
+
     ImGui::End();
+  }
+
+  void displayApplyingTexture()
+  {
+    ImGui::Columns(1);
+
+    ImGui::Text(editing.c_str());
+
+    ImGui::Text("Choose a game object to set diffuse:");
+
+    for (auto &object : renderer->GameObjects)
+    {
+      if (ImGui::Button(object.first.c_str()))
+      {
+        try
+        {
+          object.second->setDiffuse(editing.c_str());
+        }
+        catch (std::filesystem::filesystem_error err)
+        {
+          std::cerr << "Error setting diffuse path: " << err.what() << std::endl;
+        }
+      }
+    }
+    ImGui::Columns(1);
+    ImGui::SameLine();
+    ImGui::Columns(2);
+    ImGui::Text("Choose a game object to set specular:");
+
+    for (auto &object : renderer->GameObjects)
+    {
+      if (ImGui::Button(object.first.c_str()))
+      {
+        try
+        {
+          object.second->setSpecular(editing.c_str());
+        }
+        catch (std::filesystem::filesystem_error err)
+        {
+          std::cerr << "Error setting specular path: " << err.what() << std::endl;
+        }
+      }
+    }
+    ImGui::Columns(2);
   }
 
   void displayPropertiesEditor()
@@ -191,7 +234,6 @@ private:
 
     if (editing == "")
     {
-
       ImGui::End();
       return;
     }
@@ -222,8 +264,14 @@ private:
 
     if (renderer->SpotLights.find(editing) != renderer->SpotLights.end())
     {
-
       displayEditingSpotLight();
+      ImGui::End();
+      return;
+    }
+
+    if (std::find(renderer->texturePaths.begin(), renderer->texturePaths.end(), editing) != renderer->texturePaths.end())
+    {
+      displayApplyingTexture();
       ImGui::End();
       return;
     }
@@ -234,7 +282,7 @@ private:
   void displayEditingGameObject()
   {
     ImGui::Columns(1);
-    ImGui::Text(editing);
+    ImGui::Text(editing.c_str());
     ImGui::Text("Position");
 
     ImGui::Text("X:");
@@ -378,7 +426,7 @@ private:
   void displayEditingPointLight()
   {
     ImGui::Columns(1);
-    ImGui::Text(editing);
+    ImGui::Text(editing.c_str());
     ImGui::Text("Position");
 
     ImGui::Text("X:");
@@ -581,7 +629,7 @@ private:
   void displayEditingSpotLight()
   {
     ImGui::Columns(1);
-    ImGui::Text(editing);
+    ImGui::Text(editing.c_str());
     ImGui::Text("Position");
 
     ImGui::Text("X:");
@@ -686,7 +734,7 @@ private:
   void displayEditingModel()
   {
     ImGui::Columns(1);
-    ImGui::Text(editing);
+    ImGui::Text(editing.c_str());
     ImGui::Text("Position");
 
     ImGui::Text("X:");

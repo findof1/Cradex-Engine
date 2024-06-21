@@ -32,14 +32,15 @@ public:
   std::map<std::string, PointLight> PointLights;
   std::map<std::string, SpotLight> SpotLights;
   GLFWwindow *window;
-  std::vector<std::string> dropped_files;
+
+  std::vector<std::string> texturePaths;
 
   glm::vec3 direction;
   glm::vec3 ambient;
   glm::vec3 diffuse;
   glm::vec3 specular;
 
-  int ScreenW = 1920;
+  int ScreenW = 1900;
   int ScreenH = 1080;
   bool controllingCamera;
 
@@ -340,6 +341,22 @@ public:
     {
       std::cerr << "Filesystem error: " << e.what() << std::endl;
       return "";
+    }
+  }
+
+  void getTexturePaths()
+  {
+    try
+    {
+      for (const auto &entry : std::filesystem::directory_iterator("Textures"))
+      {
+        std::string path = entry.path().u8string();
+        texturePaths.push_back(path);
+      }
+    }
+    catch (std::filesystem::filesystem_error err)
+    {
+      std::cerr << "Error converting filepath to string: " << err.what() << std::endl;
     }
   }
 

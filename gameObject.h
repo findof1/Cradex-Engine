@@ -40,14 +40,16 @@ public:
     glDeleteBuffers(1, &VBO);
   }
 
-  void setDiffuse(const char *diffusePath)
+  void setDiffuse(const char *newDiffusePath)
   {
-    diffuseMap = loadTexture(diffusePath);
+    diffusePath = newDiffusePath;
+    diffuseMap = loadTexture(newDiffusePath);
   }
 
-  void setSpecular(const char *specularPath)
+  void setSpecular(const char *newSpecularPath)
   {
-    specularMap = loadTexture(specularPath);
+    specularPath = newSpecularPath;
+    specularMap = loadTexture(newSpecularPath);
   }
 
   void draw(Shader shader)
