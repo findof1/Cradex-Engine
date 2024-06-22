@@ -48,7 +48,7 @@ public:
     displayEditor();
     displayHierarchy();
     displayPropertiesEditor();
-    displayTextureManager();
+    displayFileManager();
 
     ImGui::Render();
 
@@ -91,7 +91,22 @@ private:
     {
       for (int i = 0; i < count; i++)
       {
-        const std::string destination_folder = "Textures";
+        std::string file_path = paths[i];
+        std::string destination_folder;
+        if (renderer->hasFileExtention(file_path, ".png") || renderer->hasFileExtention(file_path, ".jpg") ||
+            renderer->hasFileExtention(file_path, ".jpeg") || renderer->hasFileExtention(file_path, ".bmp") ||
+            renderer->hasFileExtention(file_path, ".tga"))
+        {
+          destination_folder = "Textures";
+        }
+        else if (renderer->hasFileExtention(file_path, ".lua"))
+        {
+          destination_folder = "Scripts";
+        }
+        else
+        {
+          destination_folder = "Files";
+        }
         renderer->copy_file_to_folder(paths[i], destination_folder);
       }
     }
@@ -160,16 +175,36 @@ private:
     ImGui::End();
   }
 
-  void displayTextureManager()
+  void displayFileManager()
   {
 
     ImGui::SetNextWindowPos(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2 * 1.5), ImGuiCond_Always);
 
     ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH - (renderer->ScreenH / 2 * 1.5)), ImGuiCond_Always);
 
-    ImGui::Begin("Texture Manager", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin("File Manager", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     for (auto path : renderer->texturePaths)
+    {
+
+      if (ImGui::Button(path.c_str()))
+      {
+        editing = path.c_str();
+      }
+      ImGui::SameLine();
+    }
+
+    for (auto path : renderer->scriptPaths)
+    {
+
+      if (ImGui::Button(path.c_str()))
+      {
+        editing = path.c_str();
+      }
+      ImGui::SameLine();
+    }
+
+    for (auto path : renderer->filePaths)
     {
 
       if (ImGui::Button(path.c_str()))
@@ -192,7 +227,8 @@ private:
 
     for (auto &object : renderer->GameObjects)
     {
-      if (ImGui::Button(object.first.c_str()))
+      std::string button_label = object.first + "##diffuse";
+      if (ImGui::Button(button_label.c_str()))
       {
         try
         {
@@ -204,14 +240,13 @@ private:
         }
       }
     }
-    ImGui::Columns(1);
-    ImGui::SameLine();
-    ImGui::Columns(2);
+
     ImGui::Text("Choose a game object to set specular:");
 
     for (auto &object : renderer->GameObjects)
     {
-      if (ImGui::Button(object.first.c_str()))
+      std::string button_label = object.first + "##specular";
+      if (ImGui::Button(button_label.c_str()))
       {
         try
         {
@@ -223,7 +258,8 @@ private:
         }
       }
     }
-    ImGui::Columns(2);
+    ImGui::Dummy(ImVec2(0.0f, 90.0f));
+    ImGui::Columns(1);
   }
 
   void displayPropertiesEditor()

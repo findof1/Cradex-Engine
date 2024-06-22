@@ -23,7 +23,7 @@
     },
     "GameObjects": [
         {
-            "diffusePath": "Textures\\awesomeface.png",
+            "diffusePath": "Textures\\wall.jpg",
             "name": "cube1",
             "position": {
                 "x": 0.0,
@@ -40,7 +40,7 @@
                 "y": 3.0,
                 "z": 3.0
             },
-            "specularPath": "Textures/container2_specular.png",
+            "specularPath": "Textures\\awesomeface.png",
             "type": 0
         },
         {
@@ -65,7 +65,7 @@
             "type": 0
         },
         {
-            "diffusePath": "Textures/diffuse.jpg",
+            "diffusePath": "Textures\\wall.jpg",
             "name": "cube11",
             "position": {
                 "x": 4.0,
@@ -322,6 +322,33 @@
             },
             "constant": 1.0,
             "diffuse": {
+                "b": 0.6176470518112183,
+                "g": 0.6176470518112183,
+                "r": 0.6176470518112183
+            },
+            "intensity": 1.0,
+            "linear": 0.09000000357627869,
+            "name": "pointLight1",
+            "position": {
+                "x": 0.0,
+                "y": 3.0,
+                "z": 0.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        },
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
                 "b": 0.5,
                 "g": 0.10784313827753067,
                 "r": 0.10784313827753067
@@ -457,9 +484,9 @@
             },
             "constant": 1.0,
             "diffuse": {
-                "b": 0.8326961994171143,
-                "g": 0.12675338983535767,
-                "r": 0.8326966166496277
+                "b": 0.11025167256593704,
+                "g": 0.18679668009281158,
+                "r": 0.11025179922580719
             },
             "intensity": 1.0,
             "linear": 0.09000000357627869,

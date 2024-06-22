@@ -34,6 +34,8 @@ public:
   GLFWwindow *window;
 
   std::vector<std::string> texturePaths;
+  std::vector<std::string> scriptPaths;
+  std::vector<std::string> filePaths;
 
   glm::vec3 direction;
   glm::vec3 ambient;
@@ -351,13 +353,33 @@ public:
       for (const auto &entry : std::filesystem::directory_iterator("Textures"))
       {
         std::string path = entry.path().u8string();
-        texturePaths.push_back(path);
+
+        if (hasFileExtention(path, ".png") || hasFileExtention(path, ".jpg") ||
+            hasFileExtention(path, ".jpeg") || hasFileExtention(path, ".bmp") ||
+            hasFileExtention(path, ".tga"))
+        {
+          texturePaths.push_back(path);
+        }
+        else if (hasFileExtention(path, ".lua"))
+        {
+          scriptPaths.push_back(path);
+        }
+        else
+        {
+          filePaths.push_back(path);
+        }
       }
     }
     catch (std::filesystem::filesystem_error err)
     {
       std::cerr << "Error converting filepath to string: " << err.what() << std::endl;
     }
+  }
+
+  bool hasFileExtention(const std::string &file_path, const std::string &extension)
+  {
+    return file_path.size() >= extension.size() &&
+           file_path.compare(file_path.size() - extension.size(), extension.size(), extension) == 0;
   }
 
 private:
