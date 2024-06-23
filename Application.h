@@ -10,6 +10,7 @@
 #include "External/json.hpp"
 #include <filesystem>
 #include <stdexcept>
+#include "luaSupport.h"
 
 using json = nlohmann::json;
 
@@ -23,28 +24,31 @@ public:
 
   std::string scenePath;
 
-  Application(const char *scenePath = "data.json") : scenePath(scenePath)
+  Application(bool runGame = false, const char *scenePath = "data.json") : scenePath(scenePath), renderer(runGame)
   {
-    engineUI = new UI(&renderer);
+    if (!runGame)
+    {
+      engineUI = new UI(&renderer);
 
-    if (!std::filesystem::exists(scenePath))
-    {
-      initializeScene();
-    }
-    else
-    {
-      try
+      if (!std::filesystem::exists(scenePath))
       {
-        int res = unserialize();
-        if (res == 1)
+        initializeScene();
+      }
+      else
+      {
+        try
         {
+          int res = unserialize();
+          if (res == 1)
+          {
+            initializeScene();
+          }
+        }
+        catch (const std::exception &err)
+        {
+          std::cout << err.what() << std::endl;
           initializeScene();
         }
-      }
-      catch (const std::exception &err)
-      {
-        std::cout << err.what() << std::endl;
-        initializeScene();
       }
     }
   }
@@ -72,6 +76,66 @@ public:
       glfwPollEvents();
     }
 
+    glfwTerminate();
+  }
+
+  void runGame()
+  {
+
+    unserialize();
+    renderer.camera = *renderer.gameCamera;
+
+    LuaHandler luaHandler(&renderer);
+
+    luaHandler.registerLuaFunctions();
+
+    std::vector<std::string> scriptPaths;
+
+    for (const auto &entry : std::filesystem::directory_iterator("Scripts"))
+    {
+      std::string path = entry.path().u8string();
+      scriptPaths.push_back(path);
+    }
+
+    for (const auto path : scriptPaths)
+    {
+      if (!luaHandler.loadScript(path))
+      {
+        std::cerr << "Failed to load script: " << path << std::endl;
+        exit(EXIT_FAILURE);
+      }
+
+      luaHandler.executeFunction("start");
+    }
+
+    glViewport(0, 0, renderer.ScreenW, renderer.ScreenH);
+    while (!glfwWindowShouldClose(renderer.window))
+    {
+      float currentFrame = static_cast<float>(glfwGetTime());
+      deltaTime = currentFrame - lastFrame;
+      lastFrame = currentFrame;
+
+      luaHandler.setGlobalNumber("deltaTime", deltaTime);
+
+      for (const auto path : scriptPaths)
+      {
+        if (!luaHandler.loadScript(path))
+        {
+          std::cerr << "Failed to load script: " << path << std::endl;
+          exit(EXIT_FAILURE);
+        }
+
+        luaHandler.executeFunction("update");
+      }
+
+      glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      renderer.draw();
+
+      glfwSwapBuffers(renderer.window);
+      glfwPollEvents();
+    }
     glfwTerminate();
   }
 
@@ -112,6 +176,19 @@ public:
     serializedDirectionalLight["specular"] = serializedSpecular;
 
     serializedJson["DirectionalLight"] = serializedDirectionalLight;
+
+    json serializedCamera;
+
+    json serializedPosition;
+    serializedPosition["x"] = renderer.gameCamera->Position.x;
+    serializedPosition["y"] = renderer.gameCamera->Position.y;
+    serializedPosition["z"] = renderer.gameCamera->Position.z;
+
+    serializedCamera["yaw"] = renderer.gameCamera->Yaw;
+    serializedCamera["pitch"] = renderer.gameCamera->Pitch;
+    serializedCamera["position"] = serializedPosition;
+
+    serializedJson["camera"] = serializedCamera;
 
     std::ofstream outFile(scenePath, std::ios::out | std::ios::trunc);
 
@@ -273,6 +350,11 @@ public:
     renderer.setDirectionLightAmbient(glm::vec3(DirectionalLight["ambient"]["r"], DirectionalLight["ambient"]["g"], DirectionalLight["ambient"]["b"]));
     renderer.setDirectionLightDiffuse(glm::vec3(DirectionalLight["diffuse"]["r"], DirectionalLight["diffuse"]["g"], DirectionalLight["diffuse"]["b"]));
     renderer.setDirectionLightSpecular(glm::vec3(DirectionalLight["specular"]["r"], DirectionalLight["specular"]["g"], DirectionalLight["specular"]["b"]));
+
+    auto gameCam = data["camera"];
+
+    renderer.gameCamera = new Camera(glm::vec3(gameCam["position"]["x"], gameCam["position"]["y"], gameCam["position"]["z"]), gameCam["yaw"], gameCam["pitch"]);
+
     return 0;
   }
 

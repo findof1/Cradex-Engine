@@ -50,8 +50,9 @@ public:
   bool firstMouse = true;
 
   Camera camera;
+  Camera *gameCamera;
 
-  Renderer() : camera(glm::vec3(0.0f, 0.0f, 3.0f))
+  Renderer(bool runGame = false) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gameCamera(new Camera)
   {
     // GLFWframebuffersizefun framebuffer_size_callback, GLFWscrollfun scroll_callback, GLFWcursorposfun mouse_callback
     glfwInit();
@@ -72,18 +73,21 @@ public:
     }
     glfwMakeContextCurrent(window);
     glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+    if (!runGame)
+    {
+      glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+      glfwSetCursorPosCallback(window, mouse_callback);
+      glfwSetScrollCallback(window, scroll_callback);
+      glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    }
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
       std::cout << "Failed to initialize GLAD" << std::endl;
       exit(EXIT_FAILURE);
     }
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    glfwSetCursorPosCallback(window, mouse_callback);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -107,6 +111,28 @@ public:
 
   void addModel(std::string name, const std::string &path)
   {
+    Model *model = new Model(path);
+    Models.insert(std::make_pair(name, model));
+  }
+  void addModelDefault(const std::string &path)
+  {
+    if (!std::filesystem::exists(path))
+    {
+      return;
+    }
+    int i = 1;
+    std::string name;
+
+    while ((true))
+    {
+      if (GameObjects.find("model" + std::to_string(i)) == GameObjects.end())
+      {
+        name = "model" + std::to_string(i);
+        break;
+      }
+      i++;
+    }
+
     Model *model = new Model(path);
     Models.insert(std::make_pair(name, model));
   }

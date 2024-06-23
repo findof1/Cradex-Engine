@@ -63,6 +63,7 @@ private:
   GLuint texture;
   GLuint fbo;
   float aspectRatio;
+  std::string modelPath = "";
 
   std::string editing = "";
 
@@ -76,6 +77,11 @@ private:
     }
 
     return 0;
+  }
+
+  static int GuiTextCallback(ImGuiInputTextCallbackData *data)
+  {
+    return 1;
   }
 
   static void drop_callback(GLFWwindow *window, int count, const char **paths)
@@ -164,6 +170,22 @@ private:
       editing = "Directional Light";
     }
     ImGui::Text("Models");
+    ImGui::SameLine();
+    if (ImGui::Button("Add Model"))
+    {
+      renderer->addModelDefault(modelPath);
+    }
+    ImGui::SameLine();
+    ImGui::Text("Filepath: ");
+    std::string valueStr = modelPath;
+    static char buf[32];
+    strcpy(buf, valueStr.c_str());
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(90);
+    if (ImGui::InputText("##modelPath", buf, sizeof(buf)))
+    {
+      modelPath = buf;
+    }
     for (auto &object : renderer->Models)
     {
       if (ImGui::Button(object.first.c_str()))
@@ -308,6 +330,20 @@ private:
     if (std::find(renderer->texturePaths.begin(), renderer->texturePaths.end(), editing) != renderer->texturePaths.end())
     {
       displayApplyingTexture();
+      ImGui::End();
+      return;
+    }
+
+    if (std::find(renderer->scriptPaths.begin(), renderer->scriptPaths.end(), editing) != renderer->scriptPaths.end())
+    {
+      ImGui::Text(editing.c_str());
+      ImGui::End();
+      return;
+    }
+
+    if (std::find(renderer->filePaths.begin(), renderer->filePaths.end(), editing) != renderer->filePaths.end())
+    {
+      ImGui::Text(editing.c_str());
       ImGui::End();
       return;
     }
