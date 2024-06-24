@@ -40,8 +40,9 @@ Cradex Engine is a game engine that is in development, it is not finished so you
    - Add an object by clicking the Add button
    - To change the properties of an object, click on the button with the name of the object and edit the properties
 - **Extra**
-  - `F`: Toggle Flashlight
-
+  - `R` + `Right Click`: Hold right-click on the scene editor and press R to start the game
+  - `E`: Exit Game
+  
 ## Troubleshooting
 - **Application not starting:**
   - Verify that all files were extracted correctly.
