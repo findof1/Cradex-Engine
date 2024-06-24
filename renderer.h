@@ -23,6 +23,13 @@
 #include "imgui_impl_opengl3.h"
 #include "Application.h"
 
+enum RunStates
+{
+  NotRunning,
+  DevRun,
+  Build
+};
+
 class Renderer
 {
 public:
@@ -52,9 +59,8 @@ public:
   Camera camera;
   Camera *gameCamera;
 
-  Renderer(bool runGame = false) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gameCamera(new Camera)
+  Renderer(RunStates runGame = NotRunning) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gameCamera(new Camera)
   {
-    // GLFWframebuffersizefun framebuffer_size_callback, GLFWscrollfun scroll_callback, GLFWcursorposfun mouse_callback
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -75,7 +81,7 @@ public:
     glfwSetWindowUserPointer(window, this);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    if (!runGame)
+    if (runGame == NotRunning)
     {
       glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
       glfwSetCursorPosCallback(window, mouse_callback);

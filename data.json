@@ -65,6 +65,27 @@
             "type": 0
         },
         {
+            "diffusePath": "Textures\\awesomeface.png",
+            "name": "cube11",
+            "position": {
+                "x": 10.0,
+                "y": 0.0,
+                "z": -5.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 2.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures\\awesomeface.png",
+            "type": 0
+        },
+        {
             "diffusePath": "Textures/container2.png",
             "name": "cube2",
             "position": {
@@ -436,9 +457,9 @@
             },
             "constant": 1.0,
             "diffuse": {
-                "b": 0.9166226387023926,
-                "g": 0.7764520645141602,
-                "r": 0.9166223406791687
+                "b": 0.19291472434997559,
+                "g": 0.10541309416294098,
+                "r": 0.1929151564836502
             },
             "intensity": 1.0,
             "linear": 0.09000000357627869,
@@ -495,7 +516,7 @@
     "camera": {
         "pitch": 0.0,
         "position": {
-            "x": 0.0,
+            "x": 10.0,
             "y": 0.0,
             "z": 0.0
         },

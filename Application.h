@@ -21,12 +21,13 @@ public:
   UI *engineUI;
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
+  RunStates runGameState;
 
   std::string scenePath;
 
-  Application(bool runGame = false, const char *scenePath = "data.json") : scenePath(scenePath), renderer(runGame)
+  Application(RunStates runGameState = NotRunning, const char *scenePath = "data.json") : scenePath(scenePath), renderer(runGameState), runGameState(runGameState)
   {
-    if (!runGame)
+    if (runGameState == NotRunning)
     {
       engineUI = new UI(&renderer);
 
@@ -57,7 +58,6 @@ public:
   {
     while (!glfwWindowShouldClose(renderer.window))
     {
-
       float currentFrame = static_cast<float>(glfwGetTime());
       deltaTime = currentFrame - lastFrame;
       lastFrame = currentFrame;
@@ -67,23 +67,17 @@ public:
       glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      // run scrips here once I implement them
-      renderer.setPointLightDiffuse("pontLight6", glm::vec3((cos(glfwGetTime()) + 1) / 2, (sin(glfwGetTime()) + 1) / 2, (cos(glfwGetTime()) + 1) / 2));
-
       engineUI->draw();
 
       glfwSwapBuffers(renderer.window);
       glfwPollEvents();
     }
-
     glfwTerminate();
   }
 
   void runGame()
   {
-
     unserialize();
-    renderer.camera = *renderer.gameCamera;
 
     LuaHandler luaHandler(&renderer);
 
@@ -107,13 +101,22 @@ public:
 
       luaHandler.executeFunction("start");
     }
-
     glViewport(0, 0, renderer.ScreenW, renderer.ScreenH);
+
     while (!glfwWindowShouldClose(renderer.window))
     {
       float currentFrame = static_cast<float>(glfwGetTime());
       deltaTime = currentFrame - lastFrame;
       lastFrame = currentFrame;
+
+      if (glfwGetKey(renderer.window, GLFW_KEY_E) == GLFW_PRESS)
+      {
+        glfwTerminate();
+        std::system("start main.exe >nul 2>&1");
+        exit(EXIT_FAILURE);
+      }
+
+      renderer.camera = *renderer.gameCamera;
 
       luaHandler.setGlobalNumber("deltaTime", deltaTime);
 
@@ -136,7 +139,6 @@ public:
       glfwSwapBuffers(renderer.window);
       glfwPollEvents();
     }
-    glfwTerminate();
   }
 
   void serialize()
@@ -436,14 +438,13 @@ private:
       if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         renderer.camera.ProcessKeyboard(RIGHT, deltaTime);
 
-      if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+      if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
       {
-        renderer.setSpotLightPosition("spotLight1", renderer.camera.Position);
-        renderer.setSpotLightDirection("spotLight1", renderer.camera.Front);
-      }
-      else
-      {
-        renderer.setSpotLightPosition("spotLight1", glm::vec3(10000000.0f, 1000000000.5f, 200000000000.0f));
+        serialize();
+        glfwTerminate();
+        renderer = Renderer(DevRun);
+
+        runGame();
       }
     }
   }

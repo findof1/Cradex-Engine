@@ -16,6 +16,9 @@
 class UI
 {
 public:
+  int textureWidth;
+  int textureHeight;
+
   UI(Renderer *renderer) : renderer(renderer)
   {
     IMGUI_CHECKVERSION();
@@ -58,8 +61,6 @@ public:
 private:
   Renderer *renderer;
 
-  int textureWidth;
-  int textureHeight;
   GLuint texture;
   GLuint fbo;
   float aspectRatio;
@@ -192,6 +193,11 @@ private:
       {
         editing = object.first.c_str();
       }
+    }
+    ImGui::Text("Game Camera");
+    if (ImGui::Button("Main Camera"))
+    {
+      editing = "Game Camera";
     }
     ImGui::Columns(1);
     ImGui::End();
@@ -348,6 +354,13 @@ private:
       return;
     }
 
+    if (editing == "Game Camera")
+    {
+      displayEditingCamera();
+      ImGui::End();
+      return;
+    }
+
     ImGui::End();
   }
 
@@ -492,6 +505,90 @@ private:
       renderer->GameObjects.at(editing)->rotation.z = atof(buf);
     }
     ImGui::PopID();
+    ImGui::Columns(1);
+  }
+
+  void displayEditingCamera()
+  {
+    ImGui::Columns(1);
+    ImGui::Text(editing.c_str());
+    ImGui::Text("Position");
+
+    ImGui::Text("X:");
+    ImGui::SameLine();
+    ImGui::PushID("XPos");
+    ImGui::SetNextItemWidth(30);
+    std::string valueStr = std::to_string(renderer->gameCamera->Position.x);
+    static char buf[32];
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->gameCamera->Position = glm::vec3(atoi(buf), renderer->gameCamera->Position.y, renderer->gameCamera->Position.z);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Y:");
+    ImGui::SameLine();
+    ImGui::PushID("YPos");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->gameCamera->Position.y);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->gameCamera->Position = glm::vec3(renderer->gameCamera->Position.x, atoi(buf), renderer->gameCamera->Position.z);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Z:");
+    ImGui::SameLine();
+    ImGui::PushID("ZPos");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->gameCamera->Position.z);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->gameCamera->Position = glm::vec3(renderer->gameCamera->Position.x, renderer->gameCamera->Position.y, atoi(buf));
+    }
+    ImGui::PopID();
+
+    ImGui::Text("Rotation");
+
+    ImGui::Text("Yaw:");
+    ImGui::SameLine();
+    ImGui::PushID("Yaw");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->gameCamera->Yaw);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##Yaw", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->gameCamera->Yaw = atof(buf);
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+
+    ImGui::Text("Pitch:");
+    ImGui::SameLine();
+    ImGui::PushID("Pitch");
+    ImGui::SetNextItemWidth(30);
+    valueStr = std::to_string(renderer->gameCamera->Pitch);
+    resetBuffer(buf);
+    strcpy(buf, valueStr.c_str());
+
+    if (ImGui::InputText("##Pitch", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+    {
+      renderer->gameCamera->Pitch = atof(buf);
+    }
+    ImGui::PopID();
+
     ImGui::Columns(1);
   }
 
