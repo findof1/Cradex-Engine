@@ -1,3 +1,4 @@
 .vscode
 .fake
 cmds.txt
+./src/cmds.txt
