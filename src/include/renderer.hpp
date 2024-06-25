@@ -25,11 +25,11 @@ enum RunStates
 class Renderer
 {
 public:
-  std::map<std::string, Shader> Shaders;
-  std::map<std::string, GameObject *> GameObjects;
-  std::map<std::string, Model *> Models;
-  std::map<std::string, PointLight> PointLights;
-  std::map<std::string, SpotLight> SpotLights;
+  std::unordered_map<std::string, Shader> Shaders;
+  std::unordered_map<std::string, std::unique_ptr<GameObject>> GameObjects;
+  std::unordered_map<std::string, std::unique_ptr<Model>> Models;
+  std::unordered_map<std::string, PointLight> PointLights;
+  std::unordered_map<std::string, SpotLight> SpotLights;
   GLFWwindow *window;
 
   std::vector<std::string> texturePaths;

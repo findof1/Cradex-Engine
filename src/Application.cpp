@@ -325,10 +325,9 @@ int Application::unserialize()
     std::string path = model["path"];
 
     renderer.addModel(name, path);
-    Model *createdModel = renderer.Models.at(name);
-    createdModel->position = glm::vec3(posX, posY, posZ);
-    createdModel->rotation = glm::vec3(rotationX, rotationY, rotationZ);
-    createdModel->scale = glm::vec3(scaleX, scaleY, scaleZ);
+    renderer.setModelPosition(name, glm::vec3(posX, posY, posZ));
+    renderer.setModelRotation(name, glm::vec3(rotationX, rotationY, rotationZ));
+    renderer.setModelScale(name, glm::vec3(scaleX, scaleY, scaleZ));
   }
 
   auto DirectionalLight = data["DirectionalLight"];
