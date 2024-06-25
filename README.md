@@ -49,5 +49,6 @@ Cradex Engine is a game engine that is in development, it is not finished so you
   - Update your graphics drivers.
 
 ## Showcase
-![image](https://github.com/findof1/Cradex-Engine/assets/148909303/61fdbed5-e313-4c19-bd8f-dbfa06af0380)
+![image](https://github.com/findof1/Cradex-Engine/assets/148909303/a2720ff5-ef20-4c06-86ae-2abce49ea6e8)
+
 
