@@ -23,7 +23,7 @@
     },
     "GameObjects": [
         {
-            "diffusePath": "Textures\\awesomeface.png",
+            "diffusePath": "Textures\\container2.png",
             "name": "cube1",
             "position": {
                 "x": 0.0,
@@ -40,7 +40,7 @@
                 "y": 2.0,
                 "z": 2.0
             },
-            "specularPath": "Textures\\specular.jpg",
+            "specularPath": "Textures\\container2_specular.png",
             "type": 0
         },
         {
@@ -260,6 +260,25 @@
                 "x": 0.0,
                 "y": 0.0,
                 "z": 20.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.10000000149011612,
+                "y": 0.10000000149011612,
+                "z": 0.10000000149011612
+            }
+        },
+        {
+            "name": "model1",
+            "path": "Objects/Chair/chair.obj",
+            "position": {
+                "x": 5.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "x": 0.0,
@@ -495,7 +514,7 @@
     "camera": {
         "pitch": 0.0,
         "position": {
-            "x": 0.0,
+            "x": 5.0,
             "y": 0.0,
             "z": 5.0
         },
