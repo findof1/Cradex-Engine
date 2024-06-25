@@ -1,14 +1,14 @@
-#include "Application.hpp"
-#include "Rendering/renderer.hpp"
+#include <Application.hpp>
+#include <renderer.hpp>
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
-#include "EngineUI.hpp"
+#include <EngineUI.hpp>
 #include <GLFW/glfw3.h>
-#include "External/json.hpp"
+#include <json.hpp>
 #include <filesystem>
 #include <stdexcept>
-#include "luaSupport.hpp"
+#include <luaSupport.hpp>
 
 Application::Application(RunStates runGameState, const char *scenePath) : scenePath(scenePath), renderer(runGameState), runGameState(runGameState)
 {

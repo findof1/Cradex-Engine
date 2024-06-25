@@ -1,15 +1,15 @@
-#include "EngineUI.hpp"
+#include <EngineUI.hpp>
 #include <glad/glad.h>
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "Rendering/renderer.hpp"
-#include "Application.hpp"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <renderer.hpp>
+#include <Application.hpp>
 
 static int numbersOnlyTextCallback(ImGuiInputTextCallbackData *data)
 {

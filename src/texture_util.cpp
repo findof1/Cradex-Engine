@@ -1,8 +1,8 @@
 #include <string>
 #include <glad/glad.h>
-#include "stb_image.h"
+#include <stb_image.h>
 #include <iostream>
-#include "texture_util.hpp"
+#include <texture_util.hpp>
 
 unsigned int GetTextureFromFile(const char *path, const std::string &directory)
 {
