@@ -212,7 +212,7 @@
             "type": 0
         },
         {
-            "diffusePath": "Textures\\container2.png",
+            "diffusePath": "Textures\\awesomeface.png",
             "name": "cube1",
             "position": {
                 "x": 0.0,
@@ -229,7 +229,7 @@
                 "y": 2.0,
                 "z": 2.0
             },
-            "specularPath": "Textures\\container2_specular.png",
+            "specularPath": "Textures\\awesomeface.png",
             "type": 0
         }
     ],

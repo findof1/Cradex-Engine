@@ -1,0 +1,504 @@
+{
+    "DirectionalLight": {
+        "ambient": {
+            "b": 0.05000000074505806,
+            "g": 0.05000000074505806,
+            "r": 0.05000000074505806
+        },
+        "diffuse": {
+            "b": 0.4000000059604645,
+            "g": 0.4000000059604645,
+            "r": 0.4000000059604645
+        },
+        "direction": {
+            "x": -0.20000000298023224,
+            "y": -1.0,
+            "z": -0.30000001192092896
+        },
+        "specular": {
+            "b": 0.5,
+            "g": 0.5,
+            "r": 0.5
+        }
+    },
+    "GameObjects": [
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube10",
+            "position": {
+                "x": -1.2999999523162842,
+                "y": 1.0,
+                "z": -1.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube9",
+            "position": {
+                "x": 1.5,
+                "y": 0.20000000298023224,
+                "z": -1.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube8",
+            "position": {
+                "x": 1.5,
+                "y": 2.0,
+                "z": -2.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube7",
+            "position": {
+                "x": 1.2999999523162842,
+                "y": -2.0,
+                "z": -2.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube6",
+            "position": {
+                "x": -1.7000000476837158,
+                "y": 3.0,
+                "z": -7.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube4",
+            "position": {
+                "x": -3.799999952316284,
+                "y": -2.0,
+                "z": -12.300000190734863
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube5",
+            "position": {
+                "x": 2.4000000953674316,
+                "y": -0.4000000059604645,
+                "z": -3.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube2",
+            "position": {
+                "x": 2.0,
+                "y": 5.0,
+                "z": -15.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube3",
+            "position": {
+                "x": -1.5,
+                "y": -2.200000047683716,
+                "z": -2.5
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        },
+        {
+            "diffusePath": "Textures/container2.png",
+            "name": "cube1",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/container2_specular.png",
+            "type": 0
+        }
+    ],
+    "Models": [
+        {
+            "name": "sphere",
+            "path": "Objects/Sphere/sphere.obj",
+            "position": {
+                "x": -5.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "name": "backpack",
+            "path": "Objects/Backpack/backpack.obj",
+            "position": {
+                "x": 20.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "name": "couch",
+            "path": "Objects/Couch/couch1.obj",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 20.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.10000000149011612,
+                "y": 0.10000000149011612,
+                "z": 0.10000000149011612
+            }
+        }
+    ],
+    "PointLights": [
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
+                "b": 0.0,
+                "g": 0.0,
+                "r": 0.0
+            },
+            "intensity": 1.0,
+            "linear": 0.09000000357627869,
+            "name": "pontLight6",
+            "position": {
+                "x": -1.0,
+                "y": 1.5,
+                "z": 20.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        },
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
+                "b": 0.5,
+                "g": 0.5,
+                "r": 0.5
+            },
+            "intensity": 1.0,
+            "linear": 0.09000000357627869,
+            "name": "pontLight3",
+            "position": {
+                "x": 2.299999952316284,
+                "y": -3.299999952316284,
+                "z": -4.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        },
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
+                "b": 0.5,
+                "g": 0.5,
+                "r": 0.5
+            },
+            "intensity": 1.0,
+            "linear": 0.09000000357627869,
+            "name": "pontLight4",
+            "position": {
+                "x": -4.0,
+                "y": 2.0,
+                "z": -12.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        },
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
+                "b": 0.5,
+                "g": 0.5,
+                "r": 0.5
+            },
+            "intensity": 1.0,
+            "linear": 0.09000000357627869,
+            "name": "pontLight2",
+            "position": {
+                "x": 0.699999988079071,
+                "y": 0.20000000298023224,
+                "z": 2.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        },
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
+                "b": 0.5,
+                "g": 0.5,
+                "r": 0.5
+            },
+            "intensity": 1.0,
+            "linear": 0.09000000357627869,
+            "name": "pontLight5",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -3.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        },
+        {
+            "ambient": {
+                "b": 0.20000000298023224,
+                "g": 0.20000000298023224,
+                "r": 0.20000000298023224
+            },
+            "constant": 1.0,
+            "diffuse": {
+                "b": 0.5,
+                "g": 0.5,
+                "r": 0.5
+            },
+            "intensity": 5.0,
+            "linear": 0.09000000357627869,
+            "name": "pontLight1",
+            "position": {
+                "x": 5.199999809265137,
+                "y": 0.20000000298023224,
+                "z": 0.20000000298023224
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        }
+    ],
+    "SpotLights": [
+        {
+            "ambient": {
+                "b": 0.0,
+                "g": 0.0,
+                "r": 0.0
+            },
+            "constant": 1.0,
+            "cutOff": 12.5,
+            "diffuse": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            },
+            "direction": {
+                "x": -4.371138828673793e-08,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "linear": 0.09000000357627869,
+            "name": "spotLight1",
+            "on": false,
+            "outerCutOff": 17.5,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "quadratic": 0.03200000151991844,
+            "specular": {
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+            }
+        }
+    ],
+    "camera": {
+        "pitch": 0.0,
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "yaw": -90.0
+    }
+}

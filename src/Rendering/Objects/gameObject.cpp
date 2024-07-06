@@ -65,10 +65,7 @@ void GameObject::draw(Shader shader)
   }
   else if (type == 1)
   {
-    glDrawElements(GL_TRIANGLES,    // primitive type
-                   indicesCount,    // # of indices
-                   GL_UNSIGNED_INT, // data type
-                   (void *)0);
+    glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, (void *)0);
   }
 }
 
