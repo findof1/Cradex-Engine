@@ -1,4 +1,5 @@
 #include <gameObject.hpp>
+#include <BinarySerializer.hpp>
 
 GameObject::GameObject(int type, const char *diffuse, const char *specular, Shader shader) : type(type), diffusePath(diffuse), specularPath(specular)
 {
@@ -101,6 +102,16 @@ json GameObject::serialize()
   serializedObject["specularPath"] = specularPath;
 
   return serializedObject;
+}
+
+void GameObject::binSerialize(std::ofstream &ofs)
+{
+  binSerializeVector3(ofs, position);
+  binSerializeVector3(ofs, rotation);
+  binSerializeVector3(ofs, scale);
+  binSerializeInt(ofs, type);
+  binSerializeString(ofs, diffusePath);
+  binSerializeString(ofs, specularPath);
 }
 
 unsigned int GameObject::loadTexture(const char *path)

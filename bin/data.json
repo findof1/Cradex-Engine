@@ -23,6 +23,27 @@
     },
     "GameObjects": [
         {
+            "diffusePath": "Textures/diffuse.jpg",
+            "name": "cube11",
+            "position": {
+                "x": -9.0,
+                "y": 0.0,
+                "z": 5.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 45.0,
+                "z": 45.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 21.0,
+                "z": 1.0
+            },
+            "specularPath": "Textures/specular.jpg",
+            "type": 0
+        },
+        {
             "diffusePath": "Textures/container2.png",
             "name": "cube9",
             "position": {
@@ -215,7 +236,7 @@
             "diffusePath": "Textures\\awesomeface.png",
             "name": "cube1",
             "position": {
-                "x": 0.0,
+                "x": 12.0,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -238,7 +259,7 @@
             "name": "sphere",
             "path": "Objects/Sphere/sphere.obj",
             "position": {
-                "x": -5.0,
+                "x": -9.0,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -259,7 +280,7 @@
             "position": {
                 "x": 5.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -7.0
             },
             "rotation": {
                 "x": 0.0,

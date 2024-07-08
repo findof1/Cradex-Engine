@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <luaSupport.hpp>
+#include "BinarySerializer.hpp"
 
 Application::Application(RunStates runGameState, const char *scenePath) : scenePath(scenePath), renderer(runGameState), runGameState(runGameState)
 {
@@ -187,6 +188,43 @@ void Application::serialize()
   outFile << serializedJson.dump(4);
 
   outFile.close();
+}
+
+void Application::binSerialize()
+{
+  std::ofstream ofs("game.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+  if (!ofs.is_open())
+  {
+    throw std::runtime_error("Could not open or create the binary serialization file.");
+  }
+
+  binSerializeGameObjects(ofs);
+  // point lights
+  // spot lights
+  // models
+
+  binSerializeVector3(ofs, renderer.direction);
+  binSerializeVector3(ofs, renderer.ambient);
+  binSerializeVector3(ofs, renderer.diffuse);
+  binSerializeVector3(ofs, renderer.specular);
+
+  binSerializeVector3(ofs, renderer.gameCamera->Position);
+  binSerializeInt(ofs, renderer.gameCamera->Yaw);
+  binSerializeInt(ofs, renderer.gameCamera->Pitch);
+
+  ofs.close();
+}
+
+void Application::binSerializeGameObjects(std::ofstream &ofs)
+{
+  size_t size = renderer.GameObjects.size();
+  ofs.write(reinterpret_cast<const char *>(&size), sizeof(size));
+
+  for (auto &object : renderer.GameObjects)
+  {
+    object.second->binSerialize(ofs);
+    binSerializeString(ofs, object.first);
+  }
 }
 
 int Application::unserialize()

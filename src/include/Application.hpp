@@ -23,10 +23,13 @@ public:
   void run();
   void runGame();
   void serialize();
+  void binSerialize();
   int unserialize();
 
 private:
   json serializeGameObjects();
+  void binSerializeGameObjects(std::ofstream &ofs);
+
   json serializePointLights();
   json serializeSpotLights();
   json serializeModels();
