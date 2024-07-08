@@ -199,9 +199,9 @@ void Application::binSerialize()
   }
 
   binSerializeGameObjects(ofs);
-  // point lights
-  // spot lights
-  // models
+  binSerializePointLights(ofs);
+  binSerializeSpotLights(ofs);
+  binSerializeModels(ofs);
 
   binSerializeVector3(ofs, renderer.direction);
   binSerializeVector3(ofs, renderer.ambient);
@@ -221,6 +221,42 @@ void Application::binSerializeGameObjects(std::ofstream &ofs)
   ofs.write(reinterpret_cast<const char *>(&size), sizeof(size));
 
   for (auto &object : renderer.GameObjects)
+  {
+    object.second->binSerialize(ofs);
+    binSerializeString(ofs, object.first);
+  }
+}
+
+void Application::binSerializePointLights(std::ofstream &ofs)
+{
+  size_t size = renderer.PointLights.size();
+  ofs.write(reinterpret_cast<const char *>(&size), sizeof(size));
+
+  for (auto &object : renderer.PointLights)
+  {
+    object.second.binSerialize(ofs);
+    binSerializeString(ofs, object.first);
+  }
+}
+
+void Application::binSerializeSpotLights(std::ofstream &ofs)
+{
+  size_t size = renderer.SpotLights.size();
+  ofs.write(reinterpret_cast<const char *>(&size), sizeof(size));
+
+  for (auto &object : renderer.SpotLights)
+  {
+    object.second.binSerialize(ofs);
+    binSerializeString(ofs, object.first);
+  }
+}
+
+void Application::binSerializeModels(std::ofstream &ofs)
+{
+  size_t size = renderer.Models.size();
+  ofs.write(reinterpret_cast<const char *>(&size), sizeof(size));
+
+  for (auto &object : renderer.Models)
   {
     object.second->binSerialize(ofs);
     binSerializeString(ofs, object.first);

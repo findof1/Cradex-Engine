@@ -31,8 +31,14 @@ private:
   void binSerializeGameObjects(std::ofstream &ofs);
 
   json serializePointLights();
+  void binSerializePointLights(std::ofstream &ofs);
+
   json serializeSpotLights();
+  void binSerializeSpotLights(std::ofstream &ofs);
+
   json serializeModels();
+  void binSerializeModels(std::ofstream &ofs);
+
   void processInput(GLFWwindow *window);
   void initializeScene();
 };

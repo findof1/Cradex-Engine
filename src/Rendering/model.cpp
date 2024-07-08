@@ -2,6 +2,7 @@
 #include <texture_util.hpp>
 #include <shader.hpp>
 #include <stb_image.h>
+#include <BinarySerializer.hpp>
 
 Model::Model(const std::string &path, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) : position(position), rotation(rotation), scale(scale), path(path)
 {
@@ -54,6 +55,14 @@ json Model::serialize()
   serializedObject["path"] = path;
 
   return serializedObject;
+}
+
+void Model::binSerialize(std::ofstream &ofs)
+{
+  binSerializeVector3(ofs, position);
+  binSerializeVector3(ofs, rotation);
+  binSerializeVector3(ofs, scale);
+  binSerializeString(ofs, path);
 }
 
 void Model::loadModel(std::string path)

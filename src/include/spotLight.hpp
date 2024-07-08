@@ -50,6 +50,7 @@ public:
   void draw(Shader lightShader);
 
   json serialize();
+  void binSerialize(std::ofstream &ofs);
 
 private:
   unsigned int lightCubeVAO;

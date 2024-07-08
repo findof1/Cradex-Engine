@@ -38,7 +38,9 @@ public:
   void setAttenuation(float newConstant, float newLinear, float newQuadratic, Shader shader);
 
   void draw(Shader lightShader);
+
   json serialize();
+  void binSerialize(std::ofstream &ofs);
 
 private:
   unsigned int lightCubeVAO;

@@ -1,4 +1,5 @@
 #include <pointLight.hpp>
+#include <BinarySerializer.hpp>
 
 PointLight::PointLight(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, Shader shader, int id) : position(position), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), intensity(intensity), id(id)
 {
@@ -174,4 +175,16 @@ json PointLight::serialize()
   serializedPointLight["intensity"] = intensity;
 
   return serializedPointLight;
+}
+
+void PointLight::binSerialize(std::ofstream &ofs)
+{
+  binSerializeVector3(ofs, position);
+  binSerializeVector3(ofs, ambient);
+  binSerializeVector3(ofs, diffuse);
+  binSerializeVector3(ofs, specular);
+  binSerializeFloat(ofs, constant);
+  binSerializeFloat(ofs, linear);
+  binSerializeFloat(ofs, quadratic);
+  binSerializeFloat(ofs, intensity);
 }

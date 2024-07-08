@@ -31,6 +31,7 @@ public:
   void draw(Shader &shader);
 
   json serialize();
+  void binSerialize(std::ofstream &ofs);
 
 private:
   void loadModel(std::string path);
