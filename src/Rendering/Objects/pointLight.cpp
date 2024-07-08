@@ -1,5 +1,5 @@
 #include <pointLight.hpp>
-#include <BinarySerializer.hpp>
+#include <BinaryUtils.hpp>
 
 PointLight::PointLight(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float intensity, Shader shader, int id) : position(position), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), intensity(intensity), id(id)
 {

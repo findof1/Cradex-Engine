@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <luaSupport.hpp>
-#include "BinarySerializer.hpp"
+#include "BinaryUtils.hpp"
 
 Application::Application(RunStates runGameState, const char *scenePath) : scenePath(scenePath), renderer(runGameState), runGameState(runGameState)
 {
@@ -215,6 +215,123 @@ void Application::binSerialize()
   ofs.close();
 }
 
+void Application::binUnserialize()
+{
+  std::ifstream ifs("game.bin", std::ios::binary);
+  if (!ifs.is_open())
+  {
+    throw std::runtime_error("Could not open or create the binary serialization file.");
+  }
+
+  size_t gameObjectsSize;
+  ifs.read(reinterpret_cast<char *>(&gameObjectsSize), sizeof(gameObjectsSize));
+
+  for (int i = 0; i < gameObjectsSize; i++)
+  {
+    std::string name;
+    binUnserializeString(ifs, name);
+
+    glm::vec3 position;
+    binUnserializeVector3(ifs, position);
+
+    glm::vec3 rotation;
+    binUnserializeVector3(ifs, rotation);
+
+    glm::vec3 scale;
+    binUnserializeVector3(ifs, scale);
+
+    int type;
+    binUnserializeInt(ifs, type);
+
+    std::string diffusePath;
+    binUnserializeString(ifs, diffusePath);
+
+    std::string specularPath;
+    binUnserializeString(ifs, specularPath);
+
+    renderer.addGameObject(name, type, diffusePath.c_str(), specularPath.c_str(), position, rotation, scale);
+  }
+
+  size_t pointLightsSize;
+  ifs.read(reinterpret_cast<char *>(&pointLightsSize), sizeof(pointLightsSize));
+
+  for (int i = 0; i < pointLightsSize; i++)
+  {
+    std::string name;
+    binUnserializeString(ifs, name);
+
+    glm::vec3 position;
+    binUnserializeVector3(ifs, position);
+
+    glm::vec3 ambient;
+    binUnserializeVector3(ifs, ambient);
+
+    glm::vec3 diffuse;
+    binUnserializeVector3(ifs, diffuse);
+
+    glm::vec3 specular;
+    binUnserializeVector3(ifs, specular);
+
+    float constant;
+    binUnserializeFloat(ifs, constant);
+    float linear;
+    binUnserializeFloat(ifs, linear);
+    float quadratic;
+    binUnserializeFloat(ifs, quadratic);
+
+    int intensity;
+    binUnserializeInt(ifs, intensity);
+
+    renderer.addPointLight(name, position, ambient, diffuse, specular, constant, linear, quadratic, intensity);
+  }
+
+  size_t spotLightsSize;
+  ifs.read(reinterpret_cast<char *>(&spotLightsSize), sizeof(spotLightsSize));
+
+  for (int i = 0; i < spotLightsSize; i++)
+  {
+    std::string name;
+    binUnserializeString(ifs, name);
+
+    glm::vec3 position;
+    binUnserializeVector3(ifs, position);
+
+    glm::vec3 direction;
+    binUnserializeVector3(ifs, direction);
+
+    glm::vec3 ambient;
+    binUnserializeVector3(ifs, ambient);
+
+    glm::vec3 diffuse;
+    binUnserializeVector3(ifs, diffuse);
+
+    glm::vec3 specular;
+    binUnserializeVector3(ifs, specular);
+
+    float constant;
+    binUnserializeFloat(ifs, constant);
+    float linear;
+    binUnserializeFloat(ifs, linear);
+    float quadratic;
+    binUnserializeFloat(ifs, quadratic);
+
+    float cutOff;
+    binUnserializeFloat(ifs, cutOff);
+
+    float outerCutOff;
+    binUnserializeFloat(ifs, outerCutOff);
+
+    bool on;
+    binUnserializeBool(ifs, on);
+
+    renderer.addSpotLight(name, position, direction, ambient, diffuse, specular, constant, linear, quadratic, cutOff, outerCutOff);
+
+    renderer.SpotLights.at(name).on = on;
+  }
+
+  ifs.close();
+}
+
 void Application::binSerializeGameObjects(std::ofstream &ofs)
 {
   size_t size = renderer.GameObjects.size();
@@ -222,8 +339,8 @@ void Application::binSerializeGameObjects(std::ofstream &ofs)
 
   for (auto &object : renderer.GameObjects)
   {
-    object.second->binSerialize(ofs);
     binSerializeString(ofs, object.first);
+    object.second->binSerialize(ofs);
   }
 }
 
@@ -234,8 +351,8 @@ void Application::binSerializePointLights(std::ofstream &ofs)
 
   for (auto &object : renderer.PointLights)
   {
-    object.second.binSerialize(ofs);
     binSerializeString(ofs, object.first);
+    object.second.binSerialize(ofs);
   }
 }
 
@@ -246,8 +363,8 @@ void Application::binSerializeSpotLights(std::ofstream &ofs)
 
   for (auto &object : renderer.SpotLights)
   {
-    object.second.binSerialize(ofs);
     binSerializeString(ofs, object.first);
+    object.second.binSerialize(ofs);
   }
 }
 
@@ -258,8 +375,8 @@ void Application::binSerializeModels(std::ofstream &ofs)
 
   for (auto &object : renderer.Models)
   {
-    object.second->binSerialize(ofs);
     binSerializeString(ofs, object.first);
+    object.second->binSerialize(ofs);
   }
 }
 

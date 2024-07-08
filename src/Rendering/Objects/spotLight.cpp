@@ -1,5 +1,5 @@
 #include <spotLight.hpp>
-#include <BinarySerializer.hpp>
+#include <BinaryUtils.hpp>
 
 SpotLight::SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff, Shader shader, int id) : position(position), direction(direction), ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic), cutOff(cutOff), outerCutOff(outerCutOff), id(id)
 {
@@ -209,4 +209,5 @@ void SpotLight::binSerialize(std::ofstream &ofs)
   binSerializeFloat(ofs, quadratic);
   binSerializeFloat(ofs, cutOff);
   binSerializeFloat(ofs, outerCutOff);
+  binSerializeInt(ofs, on);
 }

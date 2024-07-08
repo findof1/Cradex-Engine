@@ -2,7 +2,7 @@
 #include <texture_util.hpp>
 #include <shader.hpp>
 #include <stb_image.h>
-#include <BinarySerializer.hpp>
+#include <BinaryUtils.hpp>
 
 Model::Model(const std::string &path, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) : position(position), rotation(rotation), scale(scale), path(path)
 {

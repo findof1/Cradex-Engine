@@ -24,7 +24,9 @@ public:
   void runGame();
   void serialize();
   void binSerialize();
+
   int unserialize();
+  void binUnserialize();
 
 private:
   json serializeGameObjects();

@@ -1,5 +1,5 @@
 #include <gameObject.hpp>
-#include <BinarySerializer.hpp>
+#include <BinaryUtils.hpp>
 
 GameObject::GameObject(int type, const char *diffuse, const char *specular, Shader shader) : type(type), diffusePath(diffuse), specularPath(specular)
 {
