@@ -209,8 +209,8 @@ void Application::binSerialize()
   binSerializeVector3(ofs, renderer.specular);
 
   binSerializeVector3(ofs, renderer.gameCamera->Position);
-  binSerializeInt(ofs, renderer.gameCamera->Yaw);
-  binSerializeInt(ofs, renderer.gameCamera->Pitch);
+  binSerializeFloat(ofs, renderer.gameCamera->Yaw);
+  binSerializeFloat(ofs, renderer.gameCamera->Pitch);
 
   ofs.close();
 }
@@ -328,6 +328,60 @@ void Application::binUnserialize()
 
     renderer.SpotLights.at(name).on = on;
   }
+
+  size_t modelsSize;
+  ifs.read(reinterpret_cast<char *>(&modelsSize), sizeof(modelsSize));
+
+  for (int i = 0; i < modelsSize; i++)
+  {
+    std::string name;
+    binUnserializeString(ifs, name);
+
+    glm::vec3 position;
+    binUnserializeVector3(ifs, position);
+
+    glm::vec3 rotation;
+    binUnserializeVector3(ifs, rotation);
+
+    glm::vec3 scale;
+    binUnserializeVector3(ifs, scale);
+
+    std::string path;
+    binUnserializeString(ifs, path);
+
+    renderer.addModel(name, path);
+    renderer.setModelPosition(name, position);
+    renderer.setModelRotation(name, rotation);
+    renderer.setModelScale(name, scale);
+  }
+
+  glm::vec3 direction;
+  binUnserializeVector3(ifs, direction);
+
+  glm::vec3 ambient;
+  binUnserializeVector3(ifs, ambient);
+
+  glm::vec3 diffuse;
+  binUnserializeVector3(ifs, diffuse);
+
+  glm::vec3 specular;
+  binUnserializeVector3(ifs, specular);
+
+  renderer.setDirectionLightDirection(direction);
+  renderer.setDirectionLightAmbient(ambient);
+  renderer.setDirectionLightDiffuse(diffuse);
+  renderer.setDirectionLightSpecular(specular);
+
+  glm::vec3 camPosition;
+  binUnserializeVector3(ifs, camPosition);
+
+  float camYaw;
+  binUnserializeFloat(ifs, camYaw);
+
+  float camPitch;
+  binUnserializeFloat(ifs, camPitch);
+
+  renderer.gameCamera = new Camera(camPosition, camYaw, camPitch);
 
   ifs.close();
 }
