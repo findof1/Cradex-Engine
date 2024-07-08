@@ -1,7 +1,7 @@
 # Cradex Engine
 
 ## Overview
-Cradex Engine is a game engine that is in development, it is not finished so you can only build levels. Features that will be added are scripting and model importing.
+Cradex Engine is a game engine that is in development, it is not finished so you can't export games yet.
 
 ## Features
 - **Real-time 3D rendering:** Experience smooth and realistic rendering of 3D models and environments.
