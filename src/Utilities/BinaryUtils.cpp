@@ -50,10 +50,29 @@ void binUnserializeFloat(std::ifstream &ifs, float &value)
 
 void binUnserializeString(std::ifstream &ifs, std::string &str)
 {
-  size_t length;
+  std::size_t length;
   ifs.read(reinterpret_cast<char *>(&length), sizeof(length));
+
+  if (ifs.fail())
+  {
+    std::cerr << "Failed to read string length" << std::endl;
+    throw std::runtime_error("Failed to read string length");
+  }
+
+  if (length > 1000000)
+  {
+    std::cerr << "String length too large: " << length << std::endl;
+    throw std::bad_alloc();
+  }
+
   str.resize(length);
   ifs.read(&str[0], length);
+
+  if (ifs.fail())
+  {
+    std::cerr << "Failed to read string data" << std::endl;
+    throw std::runtime_error("Failed to read string data");
+  }
 }
 
 void binUnserializeVector3(std::ifstream &ifs, glm::vec3 &vec)
@@ -61,6 +80,12 @@ void binUnserializeVector3(std::ifstream &ifs, glm::vec3 &vec)
   binUnserializeFloat(ifs, vec.x);
   binUnserializeFloat(ifs, vec.y);
   binUnserializeFloat(ifs, vec.z);
+
+  if (ifs.fail())
+  {
+    std::cerr << "Failed to read vec3 data" << std::endl;
+    throw std::runtime_error("Failed to read vec3 data");
+  }
 }
 
 void binUnserializeBool(std::ifstream &ifs, bool &value)

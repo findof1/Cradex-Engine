@@ -25,11 +25,12 @@ Application::Application(RunStates runGameState, const char *scenePath) : sceneP
     {
       try
       {
-        int res = unserialize();
+        unserialize();
+        /*int res = unserialize();
         if (res == 1)
         {
           initializeScene();
-        }
+        }*/
       }
       catch (const std::exception &err)
       {
@@ -279,8 +280,8 @@ void Application::binUnserialize()
     float quadratic;
     binUnserializeFloat(ifs, quadratic);
 
-    int intensity;
-    binUnserializeInt(ifs, intensity);
+    float intensity;
+    binUnserializeFloat(ifs, intensity);
 
     renderer.addPointLight(name, position, ambient, diffuse, specular, constant, linear, quadratic, intensity);
   }
@@ -382,7 +383,6 @@ void Application::binUnserialize()
   binUnserializeFloat(ifs, camPitch);
 
   renderer.gameCamera = new Camera(camPosition, camYaw, camPitch);
-
   ifs.close();
 }
 

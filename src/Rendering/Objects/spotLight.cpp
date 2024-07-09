@@ -209,5 +209,5 @@ void SpotLight::binSerialize(std::ofstream &ofs)
   binSerializeFloat(ofs, quadratic);
   binSerializeFloat(ofs, cutOff);
   binSerializeFloat(ofs, outerCutOff);
-  binSerializeInt(ofs, on);
+  binSerializeBool(ofs, on);
 }

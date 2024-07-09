@@ -1,6 +1,12 @@
 #ifndef BINARY_SERIALIZER_H
 #define BINARY_SERIALIZER_H
 
+#include <fstream>
+#include <string>
+#include <glad/glad.h>
+#include <glm/glm/glm.hpp>
+#include <glm/glm/gtc/matrix_transform.hpp>
+
 void binSerializeInt(std::ofstream &ofs, int value);
 void binSerializeFloat(std::ofstream &ofs, float value);
 void binSerializeString(std::ofstream &ofs, const std::string &str);
