@@ -1,13 +1,14 @@
 # Cradex Engine
 
 ## Overview
-Cradex Engine is a game engine that is in development, it is not finished so you can't export games yet.
+Cradex Engine is a 3d game engine that people can download and use to make games.
 
 ## Features
 - **Real-time 3D rendering:** Experience smooth and realistic rendering of 3D models and environments.
 - **User-friendly controls:** Navigate the 3D space using familiar keyboard and mouse inputs.
 - **Easy setup:** Quick and straightforward installation process.
 - **Scene saving** All of the things you make are saved between sessions
+- **Game Exporting** Games you make are automaticially exported when you exit the app (will be changed)
 
 ## Installation Instructions
 
