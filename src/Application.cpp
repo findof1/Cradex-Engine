@@ -25,12 +25,11 @@ Application::Application(RunStates runGameState, const char *scenePath) : sceneP
     {
       try
       {
-        unserialize();
-        /*int res = unserialize();
+        int res = unserialize();
         if (res == 1)
         {
           initializeScene();
-        }*/
+        }
       }
       catch (const std::exception &err)
       {
@@ -64,8 +63,14 @@ void Application::run()
 
 void Application::runGame()
 {
-  // unserialize();
-  binUnserialize();
+  if (runGameState == DevRun)
+  {
+    unserialize();
+  }
+  else
+  {
+    binUnserialize();
+  }
 
   LuaHandler luaHandler(&renderer);
 
@@ -440,12 +445,11 @@ int Application::unserialize()
   std::ifstream inputFile(scenePath);
   if (!inputFile.is_open())
   {
-    std::cerr << "Failed to open file to unserialize." << std::endl;
+    std::cerr << "Failed to open file to unserialize. " << std::endl;
     return 1;
   }
 
-  std::string jsonString((std::istreambuf_iterator<char>(inputFile)),
-                         std::istreambuf_iterator<char>());
+  std::string jsonString((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
 
   inputFile.close();
 
