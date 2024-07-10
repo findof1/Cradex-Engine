@@ -63,19 +63,25 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 
 Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gameCamera(new Camera)
 {
+
   int width, height, channels;
   bool load = true;
-
-  unsigned char *image = stbi_load("icon.png", &width, &height, &channels, 0);
-  if (image == nullptr)
-  {
-    fprintf(stderr, "Failed to load icon image\n");
-    load = false;
-  }
+  unsigned char *image;
   GLFWimage icons[1];
-  icons[0].width = width;
-  icons[0].height = height;
-  icons[0].pixels = image;
+
+  if (runGame == DevRun)
+  {
+    image = stbi_load("icon.png", &width, &height, &channels, 0);
+    if (image == nullptr)
+    {
+      fprintf(stderr, "Failed to load icon image\n");
+      load = false;
+    }
+
+    icons[0].width = width;
+    icons[0].height = height;
+    icons[0].pixels = image;
+  }
 
   if (!glfwInit())
   {
@@ -98,8 +104,11 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
     exit(EXIT_FAILURE);
   }
 
-  glfwSetWindowIcon(window, 1, icons);
-  stbi_image_free(image);
+  if (runGame == DevRun)
+  {
+    glfwSetWindowIcon(window, 1, icons);
+    stbi_image_free(image);
+  }
 
   glfwMakeContextCurrent(window);
   glfwSetWindowUserPointer(window, this);

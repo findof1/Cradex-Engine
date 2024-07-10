@@ -28,6 +28,8 @@ public:
   int unserialize();
   void binUnserialize();
 
+  void exportGame();
+
 private:
   json serializeGameObjects();
   void binSerializeGameObjects(std::ofstream &ofs);

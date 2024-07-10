@@ -64,7 +64,8 @@ void Application::run()
 
 void Application::runGame()
 {
-  unserialize();
+  // unserialize();
+  binUnserialize();
 
   LuaHandler luaHandler(&renderer);
 
@@ -439,7 +440,7 @@ int Application::unserialize()
   std::ifstream inputFile(scenePath);
   if (!inputFile.is_open())
   {
-    std::cerr << "Failed to open file." << std::endl;
+    std::cerr << "Failed to open file to unserialize." << std::endl;
     return 1;
   }
 
@@ -639,6 +640,57 @@ json Application::serializeModels()
   }
 
   return objectArray;
+}
+
+void copyRecursive(const std::filesystem::path &source, const std::filesystem::path &destination)
+{
+  namespace fs = std::filesystem;
+
+  for (const auto &entry : fs::recursive_directory_iterator(source))
+  {
+    std::string filename = entry.path().filename().string();
+
+    if (filename != "game.bin" &&
+        filename != "main.exe" &&
+        filename != "data.json" &&
+        filename != "icon.png")
+    {
+      fs::path dest = destination / entry.path().lexically_relative(source);
+
+      fs::create_directories(dest.parent_path());
+
+      try
+      {
+        if (fs::is_directory(entry.status()))
+        {
+          fs::create_directory(dest);
+        }
+        else if (fs::is_regular_file(entry.status()))
+        {
+          fs::copy_file(entry.path(), dest, fs::copy_options::overwrite_existing);
+        }
+      }
+      catch (const fs::filesystem_error &e)
+      {
+        std::cout << "Error copying " << entry.path() << ": " << e.what() << '\n';
+      }
+    }
+  }
+}
+
+void Application::exportGame()
+{
+  binSerialize();
+  std::filesystem::create_directories("./game");
+  try
+  {
+    copyRecursive("./", "./game");
+    std::cout << "Exported game successfully.\n";
+  }
+  catch (const std::filesystem::filesystem_error &e)
+  {
+    std::cout << "Error during export: " << e.what() << '\n';
+  }
 }
 
 void Application::processInput(GLFWwindow *window)
