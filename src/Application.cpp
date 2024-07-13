@@ -725,6 +725,7 @@ void Application::processInput(GLFWwindow *window)
     {
       serialize();
       glfwTerminate();
+      runGameState = DevRun;
       renderer = Renderer(DevRun);
 
       runGame();

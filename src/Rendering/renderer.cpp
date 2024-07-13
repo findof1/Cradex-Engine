@@ -62,25 +62,6 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gameCamera(new Camera)
 {
 
-  int width, height, channels;
-  bool load = true;
-  unsigned char *image;
-  GLFWimage icons[1];
-
-  if (runGame == DevRun || runGame == NotRunning)
-  {
-    image = stbi_load("icon.png", &width, &height, &channels, 0);
-    if (image == nullptr)
-    {
-      fprintf(stderr, "Failed to load icon image\n");
-      load = false;
-    }
-
-    icons[0].width = width;
-    icons[0].height = height;
-    icons[0].pixels = image;
-  }
-
   if (!glfwInit())
   {
     std::cout << "Failed to initialize GLFW" << std::endl;
@@ -104,6 +85,22 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
 
   if (runGame == DevRun || runGame == NotRunning)
   {
+    int width, height, channels;
+    bool load = true;
+    unsigned char *image;
+    GLFWimage icons[1];
+
+    image = stbi_load("icon.png", &width, &height, &channels, 0);
+    if (image == nullptr)
+    {
+      fprintf(stderr, "Failed to load icon image\n");
+      load = false;
+    }
+
+    icons[0].width = width;
+    icons[0].height = height;
+    icons[0].pixels = image;
+
     glfwSetWindowIcon(window, 1, icons);
     stbi_image_free(image);
   }
@@ -112,8 +109,8 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
   glfwSetWindowUserPointer(window, this);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
   if (runGame == NotRunning)
   {
     glfwSetCursorPosCallback(window, mouse_callback);
