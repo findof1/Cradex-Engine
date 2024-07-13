@@ -48,6 +48,7 @@ public:
   float lastX = ScreenW / 2, lastY = ScreenH / 2;
   bool firstMouse = true;
 
+  int activeCam = 0;
   Camera camera;
   Camera *gameCamera;
 

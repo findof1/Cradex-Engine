@@ -3,18 +3,16 @@
 static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
   Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-  if (renderer->controllingCamera)
-  {
-    glViewport(0, 0, width, height);
-    renderer->ScreenW = width;
-    renderer->ScreenH = height;
-  }
+
+  glViewport(0, 0, width, height);
+  renderer->ScreenW = width;
+  renderer->ScreenH = height;
 }
 
 static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
 {
   Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-  if (renderer->controllingCamera)
+  if (renderer->controllingCamera && renderer->activeCam == 0)
   {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
@@ -55,7 +53,7 @@ static void mouseButtonCallback(GLFWwindow *window, int button, int action, int 
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
   Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
-  if (renderer->controllingCamera)
+  if (renderer->controllingCamera && renderer->activeCam == 0)
   {
     renderer->camera.ProcessMouseScroll(static_cast<float>(yoffset));
   }
@@ -69,7 +67,7 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
   unsigned char *image;
   GLFWimage icons[1];
 
-  if (runGame == DevRun)
+  if (runGame == DevRun || runGame == NotRunning)
   {
     image = stbi_load("icon.png", &width, &height, &channels, 0);
     if (image == nullptr)
@@ -104,7 +102,7 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
     exit(EXIT_FAILURE);
   }
 
-  if (runGame == DevRun)
+  if (runGame == DevRun || runGame == NotRunning)
   {
     glfwSetWindowIcon(window, 1, icons);
     stbi_image_free(image);
@@ -114,9 +112,10 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
   glfwSetWindowUserPointer(window, this);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    
   if (runGame == NotRunning)
   {
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
@@ -251,9 +250,10 @@ void Renderer::addSpotLightDefault(glm::vec3 position, glm::vec3 direction, glm:
 }
 void Renderer::draw(std::string lightingShaderName, std::string lightObjShaderName)
 {
+  Camera usedCamera = activeCam == 0 ? camera : *gameCamera;
 
-  glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)ScreenW / (float)ScreenH, 0.1f, 100.0f);
-  glm::mat4 view = camera.GetViewMatrix();
+  glm::mat4 projection = glm::perspective(glm::radians(usedCamera.Zoom), (float)ScreenW / (float)ScreenH, 0.1f, 100.0f);
+  glm::mat4 view = usedCamera.GetViewMatrix();
   glm::mat4 model = glm::mat4(1.0f);
   Shader shader = Shaders.at(lightObjShaderName);
   Shader lightingShader = Shaders.at(lightingShaderName);
@@ -279,7 +279,7 @@ void Renderer::draw(std::string lightingShaderName, std::string lightObjShaderNa
   lightingShader.setMat4("view", view);
 
   lightingShader.setMat4("projection", projection);
-  lightingShader.setVec3("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+  lightingShader.setVec3("viewPos", usedCamera.Position.x, usedCamera.Position.y, usedCamera.Position.z);
 
   lightingShader.setVec3("dirLight.direction", direction.x, direction.y, direction.z);
   lightingShader.setVec3("dirLight.ambient", ambient.x, ambient.y, ambient.z);

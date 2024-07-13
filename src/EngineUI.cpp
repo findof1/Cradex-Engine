@@ -63,7 +63,7 @@ static void drop_callback(GLFWwindow *window, int count, const char **paths)
   renderer->getTexturePaths();
 }
 
-UI::UI(Renderer *renderer) : renderer(renderer)
+UI::UI(Renderer *renderer, Application *app) : renderer(renderer), app(app)
 {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -92,21 +92,86 @@ void UI::draw()
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
+  displayDropdownBar();
   displayEditor();
   displayHierarchy();
   displayPropertiesEditor();
   displayFileManager();
+
+  if (showSettingsWindow)
+  {
+    displaySettings();
+  }
 
   ImGui::Render();
 
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+bool staticWindowsSettingCheck = true;
+
+void UI::displaySettings()
+{
+  ImGui::Begin("Settings", &showSettingsWindow, ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+  if (ImGui::Checkbox("Static windows", &staticWindowsSettingCheck))
+  {
+    if (staticWindowsSettingCheck)
+    {
+      staticWindowsSetting = true;
+    }
+    else
+    {
+      staticWindowsSetting = false;
+    }
+  }
+  ImGui::End();
+}
+
+void UI::displayDropdownBar()
+{
+  if (ImGui::BeginMainMenuBar())
+  {
+    if (ImGui::BeginMenu("File"))
+    {
+      if (ImGui::MenuItem("Save", "Ctrl+S"))
+      {
+        app->serialize();
+      }
+      if (ImGui::MenuItem("Export", "Ctrl+E"))
+      {
+        try
+        {
+          if (std::filesystem::exists("./game") && std::filesystem::is_directory("./game"))
+          {
+            std::filesystem::remove_all("./game");
+          }
+        }
+        catch (const std::filesystem::filesystem_error &err)
+        {
+          std::cerr << "Filesystem error when deleting directory before exporting game: " << err.what() << std::endl;
+        }
+
+        app->exportGame();
+      }
+      if (ImGui::MenuItem("Settings", "Ctrl+,"))
+      {
+        showSettingsWindow = !showSettingsWindow;
+      }
+      ImGui::EndMenu();
+    }
+    ImGui::EndMainMenuBar();
+  }
+}
+
 void UI::displayHierarchy()
 {
-  ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-  ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2), ImGuiCond_Always);
-  ImGui::Begin("Hierarchy", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  if (staticWindowsSetting)
+  {
+    ImGui::SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2 - 30), ImGuiCond_Always);
+  }
+
+  ImGui::Begin("Hierarchy", NULL, staticWindowsSetting ? (ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse) : ImGuiWindowFlags_AlwaysHorizontalScrollbar);
   ImGui::Columns(1);
   ImGui::Text("Game Objects");
   ImGui::SameLine();
@@ -187,12 +252,13 @@ void UI::displayHierarchy()
 
 void UI::displayFileManager()
 {
+  if (staticWindowsSetting)
+  {
+    ImGui::SetNextWindowPos(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2 * 1.5), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH - (renderer->ScreenH / 2 * 1.5)), ImGuiCond_Always);
+  }
 
-  ImGui::SetNextWindowPos(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2 * 1.5), ImGuiCond_Always);
-
-  ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH - (renderer->ScreenH / 2 * 1.5)), ImGuiCond_Always);
-
-  ImGui::Begin("File Manager", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  ImGui::Begin("File Manager", NULL, staticWindowsSetting ? (ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse) : ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 
   for (auto path : renderer->texturePaths)
   {
@@ -274,9 +340,12 @@ void UI::displayApplyingTexture()
 
 void UI::displayPropertiesEditor()
 {
-  ImGui::SetNextWindowPos(ImVec2(0, renderer->ScreenH / 2), ImGuiCond_Always);
-  ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2), ImGuiCond_Always);
-  ImGui::Begin("Properties Editor", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  if (staticWindowsSetting)
+  {
+    ImGui::SetNextWindowPos(ImVec2(0, renderer->ScreenH / 2), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), renderer->ScreenH / 2), ImGuiCond_Always);
+  }
+  ImGui::Begin("Properties Editor", NULL, staticWindowsSetting ? (ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse) : ImGuiWindowFlags_AlwaysHorizontalScrollbar);
 
   if (editing == "")
   {
@@ -487,6 +556,15 @@ void UI::displayEditingGameObject()
     renderer->GameObjects.at(editing)->rotation.z = atof(buf);
   }
   ImGui::PopID();
+
+  ImGui::PushID("deleteGameObject");
+  if (ImGui::Button("delete object"))
+  {
+    if (renderer->GameObjects.find(editing) != renderer->GameObjects.end())
+      renderer->GameObjects.erase(editing);
+  }
+  ImGui::PopID();
+
   ImGui::Columns(1);
 }
 
@@ -774,6 +852,14 @@ void UI::displayEditingPointLight()
   }
   ImGui::PopID();
 
+  ImGui::PushID("deletePointLight");
+  if (ImGui::Button("delete object"))
+  {
+    if (renderer->PointLights.find(editing) != renderer->PointLights.end())
+      renderer->PointLights.erase(editing);
+  }
+  ImGui::PopID();
+
   ImGui::Columns(1);
 }
 
@@ -876,6 +962,14 @@ void UI::displayEditingSpotLight()
   if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
   {
     renderer->setSpotLightDiffuse(editing, glm::vec3(renderer->SpotLights.at(editing).diffuse.x, renderer->SpotLights.at(editing).diffuse.y, atof(buf) / 255));
+  }
+  ImGui::PopID();
+
+  ImGui::PushID("deleteSpotLight");
+  if (ImGui::Button("delete object"))
+  {
+    if (renderer->SpotLights.find(editing) != renderer->SpotLights.end())
+      renderer->SpotLights.erase(editing);
   }
   ImGui::PopID();
 
@@ -1023,15 +1117,42 @@ void UI::displayEditingModel()
     renderer->Models.at(editing)->rotation.z = atof(buf);
   }
   ImGui::PopID();
+
+  ImGui::PushID("deleteModel");
+  if (ImGui::Button("delete object"))
+  {
+    if (renderer->Models.find(editing) != renderer->Models.end())
+      renderer->Models.erase(editing);
+  }
+  ImGui::PopID();
+
   ImGui::Columns(1);
 }
 
 void UI::displayEditor()
 {
-  ImGui::SetNextWindowPos(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), 0), ImGuiCond_Always);
-  ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH / 2 * 1.5), ImGuiCond_Always);
+  if (staticWindowsSetting)
+  {
+    ImGui::SetNextWindowPos(ImVec2(renderer->ScreenW - (renderer->ScreenW / 2 * 1.5), 30), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(renderer->ScreenW / 2 * 1.5, renderer->ScreenH / 2 * 1.5 - 30), ImGuiCond_Always);
+  }
 
-  ImGui::Begin("Editor", NULL, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+  ImGui::Begin("Editor", NULL, staticWindowsSetting ? (ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse) : ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+
+  if (ImGui::BeginTabBar("MyTabBar"))
+  {
+    if (ImGui::BeginTabItem("Scene Camera"))
+    {
+      renderer->activeCam = 0;
+      ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("Game Camera"))
+    {
+      renderer->activeCam = 1;
+      ImGui::EndTabItem();
+    }
+    ImGui::EndTabBar();
+  }
 
   ImVec2 availSize = ImGui::GetContentRegionAvail();
 

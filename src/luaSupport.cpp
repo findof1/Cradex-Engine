@@ -236,4 +236,24 @@ void LuaHandler::registerLuaFunctions()
   */
   lua_pushcclosure(L, lua_addSpotLight, 1);
   lua_setglobal(L, "addSpotLight");
+
+  /*
+    lua_pushcclosure(L, lua_setSpotLightPosition, 1);
+    lua_setglobal(L, "setSpotLightPosition");
+
+    lua_pushcclosure(L, lua_setSpotLightDiffuse, 1);
+    lua_setglobal(L, "setSpotLightDiffuse");
+
+    lua_pushcclosure(L, lua_setSpotLightAmbient, 1);
+    lua_setglobal(L, "setSpotLightAmbient");
+
+    lua_pushcclosure(L, lua_setSpotLightSpecular, 1);
+    lua_setglobal(L, "setSpotLightSpecular");
+
+    lua_pushcclosure(L, lua_setSpotLightOptions, 1);
+    lua_setglobal(L, "setSpotLightOptions");
+
+    lua_pushcclosure(L, lua_setSpotLightCutoff, 1);
+    lua_setglobal(L, "setSpotLightCutoff");
+*/
 }

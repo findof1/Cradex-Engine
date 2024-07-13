@@ -15,7 +15,7 @@ Application::Application(RunStates runGameState, const char *scenePath) : sceneP
 {
   if (runGameState == NotRunning)
   {
-    engineUI = new UI(&renderer);
+    engineUI = new UI(&renderer, this);
 
     if (!std::filesystem::exists(scenePath))
     {
@@ -72,6 +72,8 @@ void Application::runGame()
     binUnserialize();
   }
 
+  renderer.activeCam = 1;
+
   LuaHandler luaHandler(&renderer);
 
   luaHandler.registerLuaFunctions();
@@ -102,14 +104,12 @@ void Application::runGame()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    if (glfwGetKey(renderer.window, GLFW_KEY_E) == GLFW_PRESS)
+    if (glfwGetKey(renderer.window, GLFW_KEY_E) == GLFW_PRESS && runGameState == DevRun)
     {
       glfwTerminate();
       std::system("start main.exe >nul 2>&1");
       exit(EXIT_FAILURE);
     }
-
-    renderer.camera = *renderer.gameCamera;
 
     luaHandler.setGlobalNumber("deltaTime", deltaTime);
 
@@ -654,8 +654,7 @@ void copyRecursive(const std::filesystem::path &source, const std::filesystem::p
   {
     std::string filename = entry.path().filename().string();
 
-    if (filename != "game.bin" &&
-        filename != "main.exe" &&
+    if (filename != "main.exe" &&
         filename != "data.json" &&
         filename != "icon.png")
     {
@@ -703,7 +702,7 @@ void Application::processInput(GLFWwindow *window)
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
-  if (renderer.controllingCamera)
+  if (renderer.controllingCamera && renderer.activeCam == 0)
   {
     float cameraSpeed = 20.0f * deltaTime;
 

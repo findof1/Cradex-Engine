@@ -41,6 +41,7 @@ public:
 
   inline glm::mat4 GetViewMatrix()
   {
+    updateCameraVectors();
     return glm::lookAt(Position, Position + Front, Up);
   }
 

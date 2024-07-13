@@ -6,23 +6,33 @@
 #include <string>
 #include <renderer.hpp>
 
+class Application;
+
 class UI
 {
 public:
   int textureWidth;
   int textureHeight;
 
-  UI(Renderer *renderer);
+  UI(Renderer *renderer, Application *app);
 
   void draw();
 
 private:
+  Application *app;
   Renderer *renderer;
   GLuint texture;
   GLuint fbo;
   float aspectRatio;
   std::string modelPath = "";
   std::string editing = "";
+  bool showSettingsWindow = false;
+
+  bool staticWindowsSetting;
+
+  void displaySettings();
+
+  void displayDropdownBar();
 
   void displayHierarchy();
 
