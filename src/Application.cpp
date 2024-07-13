@@ -44,18 +44,22 @@ void Application::run()
 {
   while (!glfwWindowShouldClose(renderer.window))
   {
-    float currentFrame = static_cast<float>(glfwGetTime());
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
+    if (!renderer.isMinimized)
+    {
+      float currentFrame = static_cast<float>(glfwGetTime());
+      deltaTime = currentFrame - lastFrame;
+      lastFrame = currentFrame;
 
-    processInput(renderer.window);
+      processInput(renderer.window);
 
-    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    engineUI->draw();
+      engineUI->draw();
 
-    glfwSwapBuffers(renderer.window);
+      glfwSwapBuffers(renderer.window);
+    }
+
     glfwPollEvents();
   }
   glfwTerminate();
@@ -63,6 +67,7 @@ void Application::run()
 
 void Application::runGame()
 {
+
   if (runGameState == DevRun)
   {
     unserialize();
@@ -100,6 +105,7 @@ void Application::runGame()
 
   while (!glfwWindowShouldClose(renderer.window))
   {
+
     float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;

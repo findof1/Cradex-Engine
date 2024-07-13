@@ -52,6 +52,8 @@ public:
   Camera camera;
   Camera *gameCamera;
 
+  bool isMinimized = false;
+
   Renderer(RunStates runGame = NotRunning);
 
   void addModel(std::string name, const std::string &path);

@@ -1,5 +1,18 @@
 #include <renderer.hpp>
 
+void window_iconify_callback(GLFWwindow *window, int iconified)
+{
+  Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+  if (iconified)
+  {
+    renderer->isMinimized = true;
+  }
+  else
+  {
+    renderer->isMinimized = false;
+  }
+}
+
 static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
   Renderer *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
@@ -111,6 +124,8 @@ Renderer::Renderer(RunStates runGame) : camera(glm::vec3(0.0f, 0.0f, 0.0f)), gam
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+  glfwSetWindowIconifyCallback(window, window_iconify_callback);
+
   if (runGame == NotRunning)
   {
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -192,15 +207,12 @@ void Renderer::addGameObjectDefault(int type, const char *diffuseMap, const char
     kind = "cube";
   }
 
-  while ((true))
+  while (GameObjects.find(kind + std::to_string(i)) != GameObjects.end())
   {
-    if (GameObjects.find(kind + std::to_string(i)) == GameObjects.end())
-    {
-      name = kind + std::to_string(i);
-      break;
-    }
     i++;
   }
+
+  name = kind + std::to_string(i);
 
   GameObject *obj = new GameObject(type, diffuseMap, specularMap, Shaders.at(shaderName));
   GameObjects.insert(std::make_pair(name, obj));
@@ -247,6 +259,7 @@ void Renderer::addSpotLightDefault(glm::vec3 position, glm::vec3 direction, glm:
 }
 void Renderer::draw(std::string lightingShaderName, std::string lightObjShaderName)
 {
+
   Camera usedCamera = activeCam == 0 ? camera : *gameCamera;
 
   glm::mat4 projection = glm::perspective(glm::radians(usedCamera.Zoom), (float)ScreenW / (float)ScreenH, 0.1f, 100.0f);
@@ -288,12 +301,10 @@ void Renderer::draw(std::string lightingShaderName, std::string lightObjShaderNa
   lightingShader.setInt("spotLightsCount", SpotLights.size());
 
   lightingShader.setFloat("material.shininess", 32.0f);
-
   for (auto &object : GameObjects)
   {
     object.second->draw(lightingShader);
   }
-
   for (auto &model : Models)
   {
     model.second->draw(lightingShader);
