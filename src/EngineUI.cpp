@@ -852,6 +852,67 @@ void UI::displayEditingPointLight()
   }
   ImGui::PopID();
 
+  ImGui::Text("Attenuation");
+
+  ImGui::Text("Constant:");
+  ImGui::SameLine();
+  ImGui::PushID("ConstantAtt");
+  ImGui::SetNextItemWidth(30);
+
+  valueStr = std::to_string(renderer->PointLights.at(editing).constant);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Constant", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setPointLightAttenuation(editing, glm::vec3(atof(buf), renderer->PointLights.at(editing).linear, renderer->PointLights.at(editing).quadratic));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Linear:");
+  ImGui::SameLine();
+  ImGui::PushID("LinearAtt");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->PointLights.at(editing).linear);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Linear", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setPointLightAttenuation(editing, glm::vec3(renderer->PointLights.at(editing).constant, atof(buf), renderer->PointLights.at(editing).quadratic));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Quadratic:");
+  ImGui::SameLine();
+  ImGui::PushID("QuadraticAtt");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->PointLights.at(editing).quadratic);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Quadratic", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setPointLightAttenuation(editing, glm::vec3(renderer->PointLights.at(editing).constant, renderer->PointLights.at(editing).linear, atof(buf)));
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Intensity:");
+  ImGui::SameLine();
+  ImGui::PushID("Intensity");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->PointLights.at(editing).intensity);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Intensity", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setPointLightIntensity(editing, atof(buf));
+  }
+  ImGui::PopID();
+
   ImGui::PushID("deletePointLight");
   if (ImGui::Button("delete object"))
   {
@@ -916,6 +977,102 @@ void UI::displayEditingSpotLight()
   }
   ImGui::PopID();
 
+  ImGui::Text("Direction");
+
+  ImGui::Text("X:");
+  ImGui::SameLine();
+  ImGui::PushID("XDir");
+  ImGui::SetNextItemWidth(30);
+
+  valueStr = std::to_string(renderer->SpotLights.at(editing).direction.x);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##X", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+
+    renderer->setSpotLightDirection(editing, glm::vec3(atof(buf), renderer->SpotLights.at(editing).direction.y, renderer->SpotLights.at(editing).direction.z));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Y:");
+  ImGui::SameLine();
+  ImGui::PushID("YDir");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).direction.y);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Y", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setSpotLightDirection(editing, glm::vec3(renderer->SpotLights.at(editing).direction.x, atof(buf), renderer->SpotLights.at(editing).direction.z));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Z:");
+  ImGui::SameLine();
+  ImGui::PushID("ZDir");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).direction.z);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Z", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setSpotLightDirection(editing, glm::vec3(renderer->SpotLights.at(editing).direction.x, renderer->SpotLights.at(editing).direction.y, atof(buf)));
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Ambient");
+
+  ImGui::Text("R:");
+  ImGui::SameLine();
+  ImGui::PushID("RAmbient");
+  ImGui::SetNextItemWidth(30);
+
+  valueStr = std::to_string(renderer->SpotLights.at(editing).ambient.x * 255);
+
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##R", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).ambient.x = atof(buf) / 255;
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("G:");
+  ImGui::SameLine();
+  ImGui::PushID("GAmbient");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).ambient.y * 255);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##G", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).ambient.y = atof(buf) / 255;
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("B:");
+  ImGui::SameLine();
+  ImGui::PushID("BAmbient");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).ambient.z * 255);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).ambient.z = atof(buf) / 255;
+  }
+  ImGui::PopID();
+
   ImGui::Text("Diffuse");
 
   ImGui::Text("R:");
@@ -962,6 +1119,130 @@ void UI::displayEditingSpotLight()
   if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
   {
     renderer->setSpotLightDiffuse(editing, glm::vec3(renderer->SpotLights.at(editing).diffuse.x, renderer->SpotLights.at(editing).diffuse.y, atof(buf) / 255));
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Specular");
+
+  ImGui::Text("R:");
+  ImGui::SameLine();
+  ImGui::PushID("RSpecular");
+  ImGui::SetNextItemWidth(30);
+
+  valueStr = std::to_string(renderer->SpotLights.at(editing).specular.x * 255);
+
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##R", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).specular.x = atof(buf) / 255;
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("G:");
+  ImGui::SameLine();
+  ImGui::PushID("GSpecular");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).specular.y * 255);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##G", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).specular.y = atof(buf) / 255;
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("B:");
+  ImGui::SameLine();
+  ImGui::PushID("BSpecular");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).specular.z * 255);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##B", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).specular.z = atof(buf) / 255;
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Attenuation");
+
+  ImGui::Text("Constant:");
+  ImGui::SameLine();
+  ImGui::PushID("ConstantAtt");
+  ImGui::SetNextItemWidth(30);
+
+  valueStr = std::to_string(renderer->SpotLights.at(editing).constant);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Constant", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setSpotLightAttenuation(editing, glm::vec3(atof(buf), renderer->SpotLights.at(editing).linear, renderer->SpotLights.at(editing).quadratic));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Linear:");
+  ImGui::SameLine();
+  ImGui::PushID("LinearAtt");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).linear);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Linear", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setSpotLightAttenuation(editing, glm::vec3(renderer->SpotLights.at(editing).constant, atof(buf), renderer->SpotLights.at(editing).quadratic));
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Quadratic:");
+  ImGui::SameLine();
+  ImGui::PushID("QuadraticAtt");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).quadratic);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##Quadratic", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->setSpotLightAttenuation(editing, glm::vec3(renderer->SpotLights.at(editing).constant, renderer->SpotLights.at(editing).linear, atof(buf)));
+  }
+  ImGui::PopID();
+
+  ImGui::Text("Cut Off:");
+  ImGui::SameLine();
+  ImGui::PushID("CutOff");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).cutOff);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##CutOff", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).cutOff = atof(buf);
+  }
+  ImGui::PopID();
+  ImGui::SameLine();
+
+  ImGui::Text("Outer Cut Off:");
+  ImGui::SameLine();
+  ImGui::PushID("OuterCutOff");
+  ImGui::SetNextItemWidth(30);
+  valueStr = std::to_string(renderer->SpotLights.at(editing).outerCutOff);
+  resetBuffer(buf);
+  strcpy(buf, valueStr.c_str());
+
+  if (ImGui::InputText("##OuterCutOff", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
+  {
+    renderer->SpotLights.at(editing).outerCutOff = atof(buf);
   }
   ImGui::PopID();
 

@@ -110,13 +110,6 @@ void Application::runGame()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    if (glfwGetKey(renderer.window, GLFW_KEY_E) == GLFW_PRESS && runGameState == DevRun)
-    {
-      glfwTerminate();
-      std::system("start main.exe >nul 2>&1");
-      exit(EXIT_FAILURE);
-    }
-
     luaHandler.setGlobalNumber("deltaTime", deltaTime);
 
     for (const auto path : scriptPaths)
@@ -130,12 +123,22 @@ void Application::runGame()
       luaHandler.executeFunction("update");
     }
 
-    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (!renderer.isMinimized)
+    {
+      if (glfwGetKey(renderer.window, GLFW_KEY_E) == GLFW_PRESS && runGameState == DevRun)
+      {
+        glfwTerminate();
+        std::system("start main.exe >nul 2>&1");
+        exit(EXIT_FAILURE);
+      }
 
-    renderer.draw();
+      glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glfwSwapBuffers(renderer.window);
+      renderer.draw();
+
+      glfwSwapBuffers(renderer.window);
+    }
     glfwPollEvents();
   }
 }

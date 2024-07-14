@@ -106,6 +106,11 @@ public:
     PointLights.at(name).setSpecular(specular, Shaders.at(shaderName));
   }
 
+  inline void setPointLightAttenuation(std::string name, glm::vec3 attenuation, std::string shaderName = "lightingShader")
+  {
+    PointLights.at(name).setAttenuation(attenuation.x, attenuation.y, attenuation.z, Shaders.at(shaderName));
+  }
+
   inline void setPointLightIntensity(std::string name, float intensity, std::string shaderName = "lightingShader")
   {
     PointLights.at(name).setIntensity(intensity, Shaders.at(shaderName));
@@ -138,6 +143,11 @@ public:
   inline void setSpotLightDirection(std::string name, glm::vec3 direction, std::string shaderName = "lightingShader")
   {
     SpotLights.at(name).setDirection(direction, Shaders.at(shaderName));
+  }
+
+  inline void setSpotLightAttenuation(std::string name, glm::vec3 attenuation, std::string shaderName = "lightingShader")
+  {
+    SpotLights.at(name).setAttenuation(attenuation.x, attenuation.y, attenuation.z, Shaders.at(shaderName));
   }
 
   inline void setDirectionLightDirection(glm::vec3 newDirection)

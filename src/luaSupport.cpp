@@ -172,7 +172,7 @@ static int lua_setPointLightSpecular(lua_State *L)
   return 0;
 }
 
-static int lua_setPointLightOptions(lua_State *L)
+static int lua_setPointLightAttenuation(lua_State *L)
 {
   Renderer *renderer = (Renderer *)lua_touserdata(L, lua_upvalueindex(1));
   const char *name = luaL_checkstring(L, 1);
@@ -266,7 +266,7 @@ static int lua_setSpotLightSpecular(lua_State *L)
   return 0;
 }
 
-static int lua_setSpotLightOptions(lua_State *L)
+static int lua_setSpotLightAttenuation(lua_State *L)
 {
   Renderer *renderer = (Renderer *)lua_touserdata(L, lua_upvalueindex(1));
   const char *name = luaL_checkstring(L, 1);
@@ -463,6 +463,36 @@ static int lua_isKeyPressed(lua_State *L)
   return 1;
 }
 
+static int lua_setCameraPosition(lua_State *L)
+{
+  Renderer *renderer = (Renderer *)lua_touserdata(L, lua_upvalueindex(1));
+  const char *name = luaL_checkstring(L, 1);
+  glm::vec3 position(luaL_checknumber(L, 2), luaL_checknumber(L, 3), luaL_checknumber(L, 4));
+
+  renderer->gameCamera->Position = position;
+  return 0;
+}
+
+static int lua_setCameraYaw(lua_State *L)
+{
+  Renderer *renderer = (Renderer *)lua_touserdata(L, lua_upvalueindex(1));
+  const char *name = luaL_checkstring(L, 1);
+  float yaw = luaL_checknumber(L, 2);
+
+  renderer->gameCamera->Yaw = yaw;
+  return 0;
+}
+
+static int lua_setCameraPitch(lua_State *L)
+{
+  Renderer *renderer = (Renderer *)lua_touserdata(L, lua_upvalueindex(1));
+  const char *name = luaL_checkstring(L, 1);
+  float pitch = luaL_checknumber(L, 2);
+
+  renderer->gameCamera->Pitch = pitch;
+  return 0;
+}
+
 LuaHandler::LuaHandler(Renderer *renderer) : renderer(renderer)
 {
   L = luaL_newstate();
@@ -579,8 +609,8 @@ void LuaHandler::registerLuaFunctions()
   lua_pushcclosure(L, lua_setPointLightSpecular, 1);
   lua_setglobal(L, "setPointLightSpecular");
 
-  lua_pushcclosure(L, lua_setPointLightOptions, 1);
-  lua_setglobal(L, "setPointLightOptions");
+  lua_pushcclosure(L, lua_setPointLightAttenuation, 1);
+  lua_setglobal(L, "setPointLightAttenuation");
 
   lua_pushcclosure(L, lua_setPointLightIntensity, 1);
   lua_setglobal(L, "setPointLightIntensity");
@@ -603,8 +633,8 @@ void LuaHandler::registerLuaFunctions()
   lua_pushcclosure(L, lua_setSpotLightSpecular, 1);
   lua_setglobal(L, "setSpotLightSpecular");
 
-  lua_pushcclosure(L, lua_setSpotLightOptions, 1);
-  lua_setglobal(L, "setSpotLightOptions");
+  lua_pushcclosure(L, lua_setSpotLightAttenuation, 1);
+  lua_setglobal(L, "setSpotLightAttenuation");
 
   lua_pushcclosure(L, lua_setSpotLightCutoff, 1);
   lua_setglobal(L, "setSpotLightCutoff");
@@ -614,4 +644,13 @@ void LuaHandler::registerLuaFunctions()
 
   lua_pushcclosure(L, lua_isKeyPressed, 1);
   lua_setglobal(L, "isKeyPressed");
+
+  lua_pushcclosure(L, lua_setCameraPosition, 1);
+  lua_setglobal(L, "setCameraPosition");
+
+  lua_pushcclosure(L, lua_setCameraYaw, 1);
+  lua_setglobal(L, "setCameraYaw");
+
+  lua_pushcclosure(L, lua_setCameraPitch, 1);
+  lua_setglobal(L, "setCameraPitch");
 }
