@@ -135,6 +135,11 @@ public:
     SpotLights.at(name).setPosition(position, Shaders.at(shaderName));
   }
 
+  inline void setSpotLightCutOff(std::string name, float cutoff, float outerCutoff, std::string shaderName = "lightingShader")
+  {
+    SpotLights.at(name).setCutOff(cutoff, outerCutoff, Shaders.at(shaderName));
+  }
+
   inline void setSpotLightOn(std::string name, bool value)
   {
     SpotLights.at(name).setOnOrOff(value);

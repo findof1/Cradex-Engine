@@ -107,7 +107,7 @@ void SpotLight::setSpecular(glm::vec3 newSpecular, Shader shader)
   shader.setVec3("spotLights[" + std::to_string(id) + "].specular", specular.x, specular.y, specular.z);
 }
 
-void SpotLight::setIntensity(float newCutOff, float newOuterCutOff, Shader shader)
+void SpotLight::setCutOff(float newCutOff, float newOuterCutOff, Shader shader)
 {
   shader.use();
   cutOff = newCutOff;

@@ -43,7 +43,7 @@ public:
 
   void setSpecular(glm::vec3 newSpecular, Shader shader);
 
-  void setIntensity(float newCutOff, float newOuterCutOff, Shader shader);
+  void setCutOff(float newCutOff, float newOuterCutOff, Shader shader);
 
   void setAttenuation(float newConstant, float newLinear, float newQuadratic, Shader shader);
 

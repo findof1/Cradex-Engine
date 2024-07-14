@@ -1227,7 +1227,7 @@ void UI::displayEditingSpotLight()
 
   if (ImGui::InputText("##CutOff", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
   {
-    renderer->SpotLights.at(editing).cutOff = atof(buf);
+    renderer->setSpotLightCutOff(editing, atof(buf), renderer->SpotLights.at(editing).outerCutOff);
   }
   ImGui::PopID();
   ImGui::SameLine();
@@ -1242,7 +1242,7 @@ void UI::displayEditingSpotLight()
 
   if (ImGui::InputText("##OuterCutOff", buf, sizeof(buf), ImGuiInputTextFlags_CharsDecimal, numbersOnlyTextCallback))
   {
-    renderer->SpotLights.at(editing).outerCutOff = atof(buf);
+    renderer->setSpotLightCutOff(editing, renderer->SpotLights.at(editing).cutOff, atof(buf));
   }
   ImGui::PopID();
 
